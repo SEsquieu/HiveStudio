@@ -90,7 +90,7 @@ export default function Sidebar({ selectedNode, setNodes, taskConfig, setTaskCon
     <div style={{ width: '300px', padding: '1rem', backgroundColor: '#1e1e1e', color: '#f8f8f8', overflowY: 'auto' }}>
       <h3>Task Settings</h3>
 
-      <label>Task Names</label>
+      <label>Task Name</label>
       <input
         style={{ width: '100%' }}
         value={taskConfig.task_name}
