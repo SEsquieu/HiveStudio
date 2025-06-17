@@ -1,7 +1,7 @@
 // Sidebar.jsx
 import React, { useState, useEffect } from 'react';
 
-export default function Sidebar({ selectedNode, setNodes, taskConfig, setTaskConfig, handleDeleteChunk }) {
+export default function Sidebar({ selectedNode, setNodes, taskConfig, setTaskConfig, handleDeleteChunk, handleDuplicateChunk }) {
   const [newParamKey, setNewParamKey] = useState('');
   const [showConditional, setShowConditional] = useState(true);
 
@@ -128,22 +128,39 @@ export default function Sidebar({ selectedNode, setNodes, taskConfig, setTaskCon
         ) : (
         <>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <h3 style={{ margin: 0 }}>Edit Chunk</h3>
-            <button
-                onClick={handleDeleteChunk}
-                style={{
-                    backgroundColor: '#aa3333',
+              <h3 style={{ margin: 0 }}>Edit Chunk</h3>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  onClick={handleDuplicateChunk}
+                  style={{
+                    backgroundColor: '#3366cc',
                     border: 'none',
-                    color: '#000',
+                    color: '#fff',
                     fontSize: '20px',
                     borderRadius: '4px',
                     padding: '4px 8px',
                     cursor: 'pointer'
-                }}
-                title="Delete Chunk"
-            >
-                🗑
-            </button>
+                  }}
+                  title="Duplicate Chunk"
+                >
+                  📄
+                </button>
+                <button
+                  onClick={handleDeleteChunk}
+                  style={{
+                      backgroundColor: '#aa3333',
+                      border: 'none',
+                      color: '#000',
+                      fontSize: '20px',
+                      borderRadius: '4px',
+                      padding: '4px 8px',
+                      cursor: 'pointer'
+                  }}
+                  title="Delete Chunk"
+                >
+                  🗑
+                </button>
+              </div>
             </div>
 
 

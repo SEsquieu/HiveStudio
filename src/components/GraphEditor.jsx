@@ -28,8 +28,8 @@ const initialNodes = [
       chunk_id: 'intro_terminal',
       required_capability: 'terminal',
       payload: {
-        intent: 'ask_user',
-        parameters: { value: '42', unit: 'volts' }
+        intent: 'wait_for_input',
+        parameters: { prompt: 'Enter a number!' }
       },
     },
   }
@@ -44,7 +44,7 @@ function GraphEditorInner() {
     const [taskConfig, setTaskConfig] = useState({
         task_name: 'my_task',
         execution_mode: 'sequential',
-        capability_required: ['display', 'terminal', 'sensor']
+        capability_required: ['display', 'terminal']
     });
 
     const selectedNode = nodes.find((node) => node.id === selectedNodeId) || null;
@@ -277,6 +277,33 @@ function GraphEditorInner() {
         setSelectedNode(null);
     };
 
+    const handleDuplicateChunk = () => {
+      if (!selectedNode) return;
+
+      const original = selectedNode;
+      const newId = `${original.id}_copy_${Math.floor(Math.random() * 1000)}`;
+
+      const offset = 40; // shift position slightly to avoid overlap
+      const duplicate = {
+        id: newId,
+        type: original.type,
+        position: {
+          x: original.position.x + offset,
+          y: original.position.y + offset
+        },
+        data: {
+          ...JSON.parse(JSON.stringify(original.data)),
+          chunk_id: `${original.data.chunk_id}_copy`,
+          depends_on: ''  // Clear dependency
+        }
+      };
+
+
+      setNodes((nds) => [...nds, duplicate]);
+      setSelectedNodeId(newId);
+    };
+
+
 
 
   return (
@@ -373,6 +400,7 @@ function GraphEditorInner() {
         taskConfig={taskConfig}
         setTaskConfig={setTaskConfig}
         handleDeleteChunk={handleDeleteChunk}
+        handleDuplicateChunk={handleDuplicateChunk}
       />
     </div>
   );
