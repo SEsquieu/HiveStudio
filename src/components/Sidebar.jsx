@@ -90,7 +90,7 @@ export default function Sidebar({ selectedNode, setNodes, taskConfig, setTaskCon
     <div style={{ width: '300px', padding: '1rem', backgroundColor: '#1e1e1e', color: '#f8f8f8', overflowY: 'auto' }}>
       <h3>Task Settings</h3>
 
-      <label>Task Names</label>
+      <label>Task Name</label>
       <input
         style={{ width: '100%' }}
         value={taskConfig.task_name}
@@ -103,8 +103,8 @@ export default function Sidebar({ selectedNode, setNodes, taskConfig, setTaskCon
         value={taskConfig.execution_mode}
         onChange={(e) => setTaskConfig({ ...taskConfig, execution_mode: e.target.value })}
       >
-        <option value="sequential">sequential</option>
         <option value="concurrent">concurrent</option>
+        <option value="sequential">sequential</option> 
       </select>
 
       <label>Capabilities Required (comma-separated)</label>

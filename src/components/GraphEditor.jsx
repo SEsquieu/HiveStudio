@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -44,7 +43,7 @@ function GraphEditorInner() {
   const [selectedNodeId, setSelectedNodeId] = useState(null);
   const [taskConfig, setTaskConfig] = useState({
     task_name: 'my_task',
-    execution_mode: 'sequential',
+    execution_mode: 'concurrent',
     capability_required: ['display', 'terminal']
   });
 
@@ -270,6 +269,11 @@ function GraphEditorInner() {
     setSelectedNodeId(newId);
   };
 
+  useEffect(() => {
+    const root = document.getElementById('root');
+    console.log('root height:', root?.offsetHeight);
+  }, []);
+
   return (
     <div
       style={{
@@ -290,7 +294,7 @@ function GraphEditorInner() {
         <input id="yaml-upload" type="file" accept=".yaml,.yml" style={{ display: 'none' }} onChange={(e) => loadFromYAML(e.target.files[0])} />
       </div>
 
-      <div style={{ flex: 1, height: '100%', minHeight: 0, minWidth: 0 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, minWidth: 0 }}>
         <ReactFlow
           nodes={styledNodes}
           edges={edges}
@@ -306,13 +310,16 @@ function GraphEditorInner() {
       </div>
 
       <div style={{
-        width: '300px',
+        flexBasis: '300px',
+        flexShrink: 0,
         height: '100%',
-        overflowY: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between', // or 'stretch'
+        padding: '1rem',
         backgroundColor: '#1a1a1a',
         color: '#fff',
         borderLeft: '1px solid #444',
-        padding: '1rem',
         boxSizing: 'border-box'
       }}>
         <Sidebar

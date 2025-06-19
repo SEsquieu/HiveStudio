@@ -17,12 +17,21 @@ function App() {
   const [activeTab, setActiveTab] = useState('builder');
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-zinc-900 text-white">
-      {/* Tab bar */}
-      <div
-        className="flex space-x-4 p-4 border-b border-zinc-700 bg-zinc-800"
-        style={{ position: 'relative', zIndex: 10 }}
-      >
+    <div style={{
+      height: '100%',
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: '#111',
+      color: '#fff'
+    }}>
+      {/* Tab Bar */}
+      <div style={{
+        display: 'flex',
+        padding: '0.5rem',
+        backgroundColor: '#222',
+        borderBottom: '1px solid #444'
+      }}>
         {['builder', 'autowrapper', 'telemetry', 'core'].map((tab) => (
           <button
             key={tab}
@@ -42,12 +51,25 @@ function App() {
         ))}
       </div>
 
-      {/* Main content area */}
-      <div className="flex-1 flex overflow-hidden min-h-0">
-        {activeTab === 'builder' && <GraphEditor />}
-        {activeTab === 'autowrapper' && <AgentAutoWrapper />}
-        {activeTab === 'telemetry' && <TelemetryDashboard />}
-        {activeTab === 'core' && <CoreVisibility />}
+      {/* Main Content */}
+      <div style={{
+        flex: 1,
+        minHeight: 0,
+        display: 'flex',
+        overflow: 'hidden'
+      }}>
+        <div style={{ display: activeTab === 'builder' ? 'flex' : 'none', flex: 1 }}>
+          <GraphEditor />
+        </div>
+        <div style={{ display: activeTab === 'autowrapper' ? 'flex' : 'none', flex: 1 }}>
+          <AgentAutoWrapper />
+        </div>
+        <div style={{ display: activeTab === 'telemetry' ? 'flex' : 'none', flex: 1 }}>
+          <TelemetryDashboard />
+        </div>
+        <div style={{ display: activeTab === 'core' ? 'flex' : 'none', flex: 1 }}>
+          <CoreVisibility />
+        </div>
       </div>
     </div>
   );
