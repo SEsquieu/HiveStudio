@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import GraphEditor from './components/GraphEditor';
+import CoreVisibility from './components/CoreVisibility';
 
 function AgentAutoWrapper() {
   return <div className="p-4 text-white">[Agent Auto-Wrapper Coming Soon]</div>;
@@ -7,10 +8,6 @@ function AgentAutoWrapper() {
 
 function TelemetryDashboard() {
   return <div className="p-4 text-white">[Telemetry Dashboard Placeholder]</div>;
-}
-
-function CoreVisibility() {
-  return <div className="p-4 text-white">[Core Visibility Panel Placeholder]</div>;
 }
 
 function App() {
