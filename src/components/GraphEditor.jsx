@@ -53,8 +53,8 @@ function GraphEditorInner() {
     setSelectedNodeId(node.id);
   }, []);
 
-  const exportToYAML = () => {
-    const task = {
+  const buildTaskYAML = () => {
+    return {
       task_name: taskConfig.task_name,
       execution_mode: taskConfig.execution_mode,
       capability_required: taskConfig.capability_required,
@@ -73,14 +73,23 @@ function GraphEditorInner() {
         if (depends_on) chunk.depends_on = depends_on;
         if (ttl !== undefined) chunk.ttl = ttl;
         if (timing) chunk.timing = timing;
-        if (conditional && conditional.type && conditional.key && conditional.value !== undefined) {
+        if (
+          conditional &&
+          conditional.type &&
+          conditional.key &&
+          conditional.value !== undefined
+        ) {
           chunk.conditional = conditional;
         }
 
         return chunk;
-      })
+      }),
     };
+  };
 
+
+  const exportToYAML = () => {
+    const task = buildTaskYAML()
     const yamlStr = yaml.dump(task);
     const blob = new Blob([yamlStr], { type: 'text/yaml' });
     const url = URL.createObjectURL(blob);
@@ -205,7 +214,8 @@ function GraphEditorInner() {
   };
 
   const handleInject = async () => {
-    const yamlOutput = generateYAML(); // or however your export function works
+    const task = buildTaskYAML();
+    const yamlOutput = yaml.dump(task); // or however your export function works
     try {
       const res = await fetch("http://localhost:8080/inject_yaml", {
         method: "POST",
