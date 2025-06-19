@@ -22,17 +22,22 @@ export default function CoreVisibility() {
   }, []);
 
   const renderAgents = () => {
-    if (!status?.idle_agents?.length) return <p>No idle agents.</p>;
+    if (!status?.agents?.length) return <p>No agents found.</p>;
     return (
-      <ul>
-        {status.idle_agents.map((agent) => (
-          <li key={agent.agent_id} className="mb-2 p-2 border border-zinc-700 rounded">
-            <strong>{agent.agent_id}</strong> ({agent.capabilities}) - {agent.status}
-          </li>
+        <ul>
+        {status.agents.map((agent) => (
+            <li key={agent.agent_id} className="mb-2 p-2 border border-zinc-700 rounded">
+            <strong>{agent.agent_id}</strong> ({agent.capabilities})<br />
+            Status: {agent.status}<br />
+            Chunk: {agent.current_chunk || "—"}<br />
+            Zone: {agent.zone_id || "—"}<br />
+            Started: {agent.execution_started ? "yes" : "no"}
+            </li>
         ))}
-      </ul>
+        </ul>
     );
-  };
+    };
+
 
   const renderZones = () => {
     if (!status?.zones?.length) return <p>No active zones.</p>;
