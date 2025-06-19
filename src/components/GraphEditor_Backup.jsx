@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
@@ -305,25 +304,14 @@ function GraphEditorInner() {
         </ReactFlow>
       </div>
 
-      <div style={{
-        width: '300px',
-        height: '100%',
-        overflowY: 'auto',
-        backgroundColor: '#1a1a1a',
-        color: '#fff',
-        borderLeft: '1px solid #444',
-        padding: '1rem',
-        boxSizing: 'border-box'
-      }}>
-        <Sidebar
-          selectedNode={selectedNode}
-          setNodes={setNodes}
-          taskConfig={taskConfig}
-          setTaskConfig={setTaskConfig}
-          handleDeleteChunk={handleDeleteChunk}
-          handleDuplicateChunk={handleDuplicateChunk}
-        />
-      </div>
+      <Sidebar
+        selectedNode={selectedNode}
+        setNodes={setNodes}
+        taskConfig={taskConfig}
+        setTaskConfig={setTaskConfig}
+        handleDeleteChunk={handleDeleteChunk}
+        handleDuplicateChunk={handleDuplicateChunk}
+      />
     </div>
   );
 }
