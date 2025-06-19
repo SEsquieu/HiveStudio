@@ -204,6 +204,23 @@ function GraphEditorInner() {
     setNodes((nds) => [...nds, newNode]);
   };
 
+  const handleInject = async () => {
+    const yamlOutput = generateYAML(); // or however your export function works
+    try {
+      const res = await fetch("http://localhost:8080/inject_yaml", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-yaml",
+        },
+        body: yamlOutput,
+      });
+      const text = await res.text();
+      alert(`✅ Task injected: ${text}`);
+    } catch (err) {
+      alert(`❌ Failed to inject: ${err.message}`);
+    }
+  };
+
   const onConnect = useCallback((params) => {
     setEdges((eds) => addEdge({ ...params, type: 'default', animated: true }, eds));
     const sourceNode = nodes.find((n) => n.id === params.source);
@@ -291,7 +308,8 @@ function GraphEditorInner() {
         <button onClick={handleAddChunk} style={buttonStyle}>+ Add Chunk</button><br />
         <button onClick={exportToYAML} style={buttonStyle}>📦 Export YAML</button><br />
         <label htmlFor="yaml-upload" style={{ ...buttonStyle, display: 'inline-block' }}>🔁 Import YAML</label>
-        <input id="yaml-upload" type="file" accept=".yaml,.yml" style={{ display: 'none' }} onChange={(e) => loadFromYAML(e.target.files[0])} />
+        <input id="yaml-upload" type="file" accept=".yaml,.yml" style={{ display: 'none' }} onChange={(e) => loadFromYAML(e.target.files[0])} /><br />
+        <button onClick={handleInject} style={buttonStyle}>🚀 Inject to Core</button>
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, minWidth: 0 }}>
