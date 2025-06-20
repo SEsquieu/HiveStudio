@@ -8,7 +8,7 @@ export default function CoreVisibility() {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const res = await fetch("http://localhost:8080/status");
+        const res = await fetch("https://core.hiveos.net/status");
         const data = await res.json();
         setStatus(data);
       } catch (err) {

@@ -217,7 +217,7 @@ function GraphEditorInner({ onInject }) {
     const task = buildTaskYAML();
     const yamlOutput = yaml.dump(task); // or however your export function works
     try {
-      const res = await fetch("http://localhost:8080/inject_yaml", {
+      const res = await fetch("https://core.hiveos.net/inject_yaml", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-yaml",
