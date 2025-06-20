@@ -37,7 +37,7 @@ const initialNodes = [
 
 const initialEdges = [];
 
-function GraphEditorInner() {
+function GraphEditorInner({ onInject }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
@@ -227,6 +227,7 @@ function GraphEditorInner() {
       const result = await res.json(); // Expect JSON from backend
       if (result.success) {
         console.log(`✅ Task injected: ${result.success}`);
+        if (onInject) onInject();
       } else {
         console.warn("Task injected but response was unclear:", result);
       }
@@ -377,10 +378,10 @@ const buttonStyle = {
   cursor: 'pointer'
 };
 
-export default function GraphEditor() {
+export default function GraphEditor({ onInject }) {
   return (
     <ReactFlowProvider>
-      <GraphEditorInner />
+      <GraphEditorInner onInject={onInject}/>
     </ReactFlowProvider>
   );
 }

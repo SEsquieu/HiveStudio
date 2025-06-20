@@ -56,7 +56,7 @@ function App() {
         overflow: 'hidden'
       }}>
         <div style={{ display: activeTab === 'builder' ? 'flex' : 'none', flex: 1 }}>
-          <GraphEditor />
+          <GraphEditor onInject={() => setActiveTab('core')} />
         </div>
         <div style={{ display: activeTab === 'autowrapper' ? 'flex' : 'none', flex: 1 }}>
           <AgentAutoWrapper />

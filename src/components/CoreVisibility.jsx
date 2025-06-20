@@ -17,7 +17,7 @@ export default function CoreVisibility() {
     };
 
     fetchStatus();
-    const interval = setInterval(fetchStatus, 2000);
+    const interval = setInterval(fetchStatus, 1000);
     return () => clearInterval(interval);
   }, []);
 
