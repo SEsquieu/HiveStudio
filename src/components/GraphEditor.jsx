@@ -224,10 +224,14 @@ function GraphEditorInner() {
         },
         body: yamlOutput,
       });
-      const text = await res.text();
-      alert(`✅ Task injected: ${text}`);
+      const result = await res.json(); // Expect JSON from backend
+      if (result.success) {
+        console.log(`✅ Task injected: ${result.success}`);
+      } else {
+        console.warn("Task injected but response was unclear:", result);
+      }
     } catch (err) {
-      alert(`❌ Failed to inject: ${err.message}`);
+      console.error(`❌ Failed to inject: ${err.message}`);
     }
   };
 
