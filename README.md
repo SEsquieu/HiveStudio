@@ -13,7 +13,7 @@ This tool lets you:
 ## Live Demo
 
 Try the web version at:  
-[https://studio.hiveos.net](Studio App!)
+[https://studio.hiveos.net](Studio!)
 
 ---
 
