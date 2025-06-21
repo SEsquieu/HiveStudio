@@ -13,7 +13,7 @@ This tool lets you:
 ## Live Demo
 
 Try the web version at:  
-[https://studio.hiveos.net](Studio!)
+[Studio App!](https://studio.hiveos.net)
 
 ---
 
@@ -26,7 +26,7 @@ npm install
 npm run dev
 ```
 
-Then open: [http://localhost:5173](http://localhost:5173)
+Then open: [localhost:5173](http://localhost:5173)
 
 ---
 
