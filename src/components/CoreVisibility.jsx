@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
+import AgentList from './AgentList';
 
 export default function CoreVisibility() {
   const [status, setStatus] = useState(null);
@@ -21,23 +22,36 @@ export default function CoreVisibility() {
     return () => clearInterval(interval);
   }, []);
 
-  const renderAgents = () => {
-    if (!status?.agents?.length) return <p>No agents found.</p>;
+  
+  const renderOverview = () => {
+    if (!status) return <p className="text-white">Loading...</p>;
     return (
-        <ul>
-        {status.agents.map((agent) => (
-            <li key={agent.agent_id} className="mb-2 p-2 border border-zinc-700 rounded">
-            <strong>{agent.agent_id}</strong> ({agent.capabilities})<br />
-            Status: {agent.status}<br />
-            Chunk: {agent.current_chunk || "—"}<br />
-            Zone: {agent.zone_id || "—"}<br />
-            Started: {agent.execution_started ? "yes" : "no"}
-            </li>
-        ))}
-        </ul>
+      <div className="text-white">
+        <p>Core Version: {status.core_version}</p>
+        <p>Core ID: {status.core_id}</p>
+        <p>Core Status: {status.core_status}</p>
+        <p>Core Start Time: {new Date(status.core_start_time * 1000).toLocaleString()}</p>
+        <p>Core Uptime: {status.core_uptime} seconds</p>
+        <p>Active Zones: {status.zones?.length || 0}</p>
+        <p>Active Agents: {status.agents?.length || 0}</p>
+        <p>Active Tasks: {status.zones?.reduce((acc, zone) => acc + (zone.task_id ? 1 : 0), 0) || 0}</p>
+        <p>Last Updated: {new Date(status.last_updated * 1000).toLocaleString()}</p>
+        <p>Core Mode: {status.core_mode}</p>
+        <p>Core Type: {status.core_type}</p>
+        <p>Core Version: {status.core_version}</p>  
+        <p>Core Build: {status.core_build}</p>
+        <p>Core Commit: {status.core_commit}</p>
+        <p>Core Branch: {status.core_branch}</p>
+        <p>Core Config: {status.core_config}</p>
+        <p>Core Config Hash: {status.core_config_hash}</p>
+        <p>Core Config Version: {status.core_config_version}</p>  
+      </div>
     );
-    };
-
+  };
+  
+  const renderAgents = () => {
+    return <AgentList agents={status?.agents || []} />;
+  };
 
   const renderZones = () => {
     if (!status?.zones?.length) return <p>No active zones.</p>;
@@ -71,6 +85,7 @@ export default function CoreVisibility() {
 
   const renderContent = () => {
     if (!status) return <p className="text-white">Loading...</p>;
+    if (view === "overview") return renderOverview();
     if (view === "agents") return renderAgents();
     if (view === "zones") return renderZones();
     if (view === "tasks") return renderTasks();
@@ -79,6 +94,9 @@ export default function CoreVisibility() {
   return (
     <div className="flex h-full">
       <div className="w-48 bg-zinc-800 p-4 border-r border-zinc-700">
+        <button onClick={() => setView("overview")} className="block w-full mb-2 p-2 rounded bg-zinc-700 hover:bg-zinc-600">
+          Overview
+        </button>
         <button onClick={() => setView("agents")} className="block w-full mb-2 p-2 rounded bg-zinc-700 hover:bg-zinc-600">
           Agents
         </button>

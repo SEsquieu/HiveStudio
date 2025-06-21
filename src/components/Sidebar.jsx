@@ -1,26 +1,16 @@
-// Sidebar.jsx
 import React, { useState, useEffect } from 'react';
 
 export default function Sidebar({ selectedNode, setNodes, taskConfig, setTaskConfig, handleDeleteChunk, handleDuplicateChunk }) {
   const [newParamKey, setNewParamKey] = useState('');
   const [showConditional, setShowConditional] = useState(true);
 
-  useEffect(() => {
-    setNewParamKey('');
-  }, [selectedNode]);
+  useEffect(() => setNewParamKey(''), [selectedNode]);
 
   const updateField = (field, value) => {
     setNodes((nds) =>
       nds.map((node) =>
         node.id === selectedNode?.id
-          ? {
-              ...node,
-              data: {
-                ...node.data,
-                [field]: value,
-                label: `chunk_id: ${node.data.chunk_id || node.id}`,
-              },
-            }
+          ? { ...node, data: { ...node.data, [field]: value, label: `chunk_id: ${node.data.chunk_id || node.id}` } }
           : node
       )
     );
@@ -30,16 +20,7 @@ export default function Sidebar({ selectedNode, setNodes, taskConfig, setTaskCon
     setNodes((nds) =>
       nds.map((node) =>
         node.id === selectedNode?.id
-          ? {
-              ...node,
-              data: {
-                ...node.data,
-                payload: {
-                  ...node.data.payload,
-                  [key]: value,
-                },
-              },
-            }
+          ? { ...node, data: { ...node.data, payload: { ...node.data.payload, [key]: value } } }
           : node
       )
     );
@@ -87,29 +68,29 @@ export default function Sidebar({ selectedNode, setNodes, taskConfig, setTaskCon
   };
 
   return (
-    <div style={{ width: '300px', padding: '1rem', backgroundColor: '#1e1e1e', color: '#f8f8f8', overflowY: 'auto' }}>
-      <h3>Task Settings</h3>
+    <div className="w-[300px] p-4 bg-zinc-900 text-zinc-100 overflow-y-auto">
+      <h3 className="text-lg font-semibold mb-2">Task Settings</h3>
 
-      <label>Task Name</label>
+      <label className="text-sm">Task Name</label>
       <input
-        style={{ width: '100%' }}
+        className="w-full mb-2 px-2 py-1 rounded bg-zinc-800 border border-zinc-700"
         value={taskConfig.task_name}
         onChange={(e) => setTaskConfig({ ...taskConfig, task_name: e.target.value })}
       />
 
-      <label>Execution Mode</label>
+      <label className="text-sm">Execution Mode</label>
       <select
-        style={{ width: '100%' }}
+        className="w-full mb-2 px-2 py-1 rounded bg-zinc-800 border border-zinc-700"
         value={taskConfig.execution_mode}
         onChange={(e) => setTaskConfig({ ...taskConfig, execution_mode: e.target.value })}
       >
         <option value="concurrent">concurrent</option>
-        <option value="sequential">sequential</option> 
+        <option value="sequential">sequential</option>
       </select>
 
-      <label>Capabilities Required (comma-separated)</label>
+      <label className="text-sm">Capabilities Required (comma-separated)</label>
       <input
-        style={{ width: '100%' }}
+        className="w-full mb-4 px-2 py-1 rounded bg-zinc-800 border border-zinc-700"
         value={taskConfig.capability_required.join(', ')}
         onChange={(e) =>
           setTaskConfig({
@@ -119,175 +100,153 @@ export default function Sidebar({ selectedNode, setNodes, taskConfig, setTaskCon
         }
       />
 
-      <hr />
+      <hr className="my-4 border-zinc-600" />
+
       {!selectedNode ? (
         <>
-            <h3>Edit Chunk</h3>
-            <p>Select a chunk node to edit.</p>
+          <h3 className="text-lg font-semibold">Edit Chunk</h3>
+          <p>Select a chunk node to edit.</p>
         </>
-        ) : (
+      ) : (
         <>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 style={{ margin: 0 }}>Edit Chunk</h3>
-              <div style={{ display: 'flex', gap: '4px' }}>
-                <button
-                  onClick={handleDuplicateChunk}
-                  style={{
-                    backgroundColor: '#3366cc',
-                    border: 'none',
-                    color: '#fff',
-                    fontSize: '20px',
-                    borderRadius: '4px',
-                    padding: '4px 8px',
-                    cursor: 'pointer'
-                  }}
-                  title="Duplicate Chunk"
-                >
-                  📄
-                </button>
-                <button
-                  onClick={handleDeleteChunk}
-                  style={{
-                      backgroundColor: '#aa3333',
-                      border: 'none',
-                      color: '#000',
-                      fontSize: '20px',
-                      borderRadius: '4px',
-                      padding: '4px 8px',
-                      cursor: 'pointer'
-                  }}
-                  title="Delete Chunk"
-                >
-                  🗑
-                </button>
-              </div>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold">Edit Chunk</h3>
+            <div className="flex gap-2">
+              <button
+                className="bg-blue-700 text-white text-lg rounded px-2 py-1"
+                onClick={handleDuplicateChunk}
+                title="Duplicate Chunk"
+              >
+                📄
+              </button>
+              <button
+                className="bg-red-700 text-black text-lg rounded px-2 py-1"
+                onClick={handleDeleteChunk}
+                title="Delete Chunk"
+              >
+                🗑
+              </button>
             </div>
+          </div>
 
+          <label>chunk_id</label>
+          <input
+            className="w-full mb-2 px-2 py-1 rounded bg-zinc-800 border border-zinc-700"
+            value={selectedNode.data.chunk_id || ''}
+            onChange={(e) => updateField('chunk_id', e.target.value)}
+          />
 
-            <label>chunk_id</label>
-            <input
-                style={{width: '100%'}}
-                value={selectedNode.data.chunk_id || ''}
-                onChange={(e) => updateField('chunk_id', e.target.value)}
-            />
-
-            <label>required_capability</label>
-            <select
-                style={{width: '100%'}}
-                value={selectedNode.data.required_capability || ''}
-                onChange={(e) => updateField('required_capability', e.target.value)}
-            >
-                <option value="">(select capability)</option>
-                {taskConfig.capability_required.map((cap) => (
-                <option key={cap} value={cap}>{cap}</option>
-                ))}
-            </select>
-
-            <label>intent</label>
-            <input
-                style={{width: '100%'}}
-                value={selectedNode.data.payload?.intent || ''}
-                onChange={(e) => updatePayloadField('intent', e.target.value)}
-            />
-
-            <label>parameters</label>
-            {Object.entries(selectedNode.data.payload?.parameters || {}).map(([key, val]) => (
-                <div key={key} style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
-                <input
-                    value={key}
-                    onChange={(e) => updateParamField(key, e.target.value, val)}
-                    style={{ width: '35%' }}
-                />
-                <input
-                    value={val}
-                    onChange={(e) => updateParamField(key, key, e.target.value)}
-                    style={{ width: '45%' }}
-                />
-                <button onClick={() => removeParamField(key)} style={{ width: '20%' }}>-</button>
-                </div>
+          <label>required_capability</label>
+          <select
+            className="w-full mb-2 px-2 py-1 rounded bg-zinc-800 border border-zinc-700"
+            value={selectedNode.data.required_capability || ''}
+            onChange={(e) => updateField('required_capability', e.target.value)}
+          >
+            <option value="">(select capability)</option>
+            {taskConfig.capability_required.map((cap) => (
+              <option key={cap} value={cap}>{cap}</option>
             ))}
-            <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
-                <input
-                placeholder="new param key"
-                value={newParamKey}
-                onChange={(e) => setNewParamKey(e.target.value)}
-                style={{ width: '60%' }}
-                />
-                <button onClick={addNewParam} style={{ width: '40%' }}>+ Add</button>
+          </select>
+
+          <label>intent</label>
+          <input
+            className="w-full mb-2 px-2 py-1 rounded bg-zinc-800 border border-zinc-700"
+            value={selectedNode.data.payload?.intent || ''}
+            onChange={(e) => updatePayloadField('intent', e.target.value)}
+          />
+
+          <label>parameters</label>
+          {Object.entries(selectedNode.data.payload?.parameters || {}).map(([key, val]) => (
+            <div key={key} className="flex gap-2 mb-2">
+              <input
+                className="w-[35%] px-1 py-1 rounded bg-zinc-800 border border-zinc-700"
+                value={key}
+                onChange={(e) => updateParamField(key, e.target.value, val)}
+              />
+              <input
+                className="w-[45%] px-1 py-1 rounded bg-zinc-800 border border-zinc-700"
+                value={val}
+                onChange={(e) => updateParamField(key, key, e.target.value)}
+              />
+              <button
+                className="w-[20%] bg-red-700 text-white rounded"
+                onClick={() => removeParamField(key)}
+              >−</button>
             </div>
+          ))}
 
-            <label>depends_on</label>
+          <div className="flex gap-2 mb-4">
             <input
-                style={{width: '100%'}}
-                value={selectedNode.data.depends_on || ''}
-                onChange={(e) => updateField('depends_on', e.target.value)}
+              placeholder="new param key"
+              className="w-[60%] px-1 py-1 rounded bg-zinc-800 border border-zinc-700"
+              value={newParamKey}
+              onChange={(e) => setNewParamKey(e.target.value)}
             />
+            <button className="w-[40%] bg-green-700 text-white rounded" onClick={addNewParam}>+ Add</button>
+          </div>
 
-            <label>ttl</label>
-            <input
-                style={{width: '100%'}}
-                type="number"
-                step="0.1"
-                value={selectedNode.data.ttl || ''}
-                onChange={(e) => updateField('ttl', parseFloat(e.target.value))}
-            />
+          <label>depends_on</label>
+          <input
+            className="w-full mb-2 px-2 py-1 rounded bg-zinc-800 border border-zinc-700"
+            value={selectedNode.data.depends_on || ''}
+            onChange={(e) => updateField('depends_on', e.target.value)}
+          />
 
-            <label>timing</label>
-            <select
-                style={{width: '100%'}}
-                value={selectedNode.data.timing || ''}
-                onChange={(e) => updateField('timing', e.target.value)}
-            >
-                <option value="">(default: ticks)</option>
-                <option value="ticks">ticks</option>
-                <option value="seconds">seconds</option>
-                <option value="ms">ms</option>
-            </select>
+          <label>ttl</label>
+          <input
+            type="number"
+            step="0.1"
+            className="w-full mb-2 px-2 py-1 rounded bg-zinc-800 border border-zinc-700"
+            value={selectedNode.data.ttl || ''}
+            onChange={(e) => updateField('ttl', parseFloat(e.target.value))}
+          />
 
-          <hr />
-            <div style={{ marginTop: '1rem', padding: '0.5rem', backgroundColor: '#292929', borderRadius: '6px' }}>
+          <label>timing</label>
+          <select
+            className="w-full mb-4 px-2 py-1 rounded bg-zinc-800 border border-zinc-700"
+            value={selectedNode.data.timing || ''}
+            onChange={(e) => updateField('timing', e.target.value)}
+          >
+            <option value="">(default: ticks)</option>
+            <option value="ticks">ticks</option>
+            <option value="seconds">seconds</option>
+            <option value="ms">ms</option>
+          </select>
+
+          <div className="bg-zinc-800 p-3 rounded">
             <div
-                onClick={() => setShowConditional(!showConditional)}
-                style={{
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                marginBottom: '0.5rem',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                color: '#ccc'
-                }}
+              className="flex justify-between items-center cursor-pointer font-semibold text-zinc-300"
+              onClick={() => setShowConditional(!showConditional)}
             >
-                <span>Conditional (optional)</span>
-                <span>{showConditional ? '▾' : '▸'}</span>
+              <span>Conditional (optional)</span>
+              <span>{showConditional ? '▾' : '▸'}</span>
             </div>
 
             {showConditional && (
-                <>
+              <>
                 <label>type</label>
                 <input
-                    style={{ width: '100%' }}
-                    value={selectedNode.data.conditional?.type || ''}
-                    onChange={(e) => updateConditionalField('type', e.target.value)}
+                  className="w-full mb-2 px-2 py-1 rounded bg-zinc-900 border border-zinc-700"
+                  value={selectedNode.data.conditional?.type || ''}
+                  onChange={(e) => updateConditionalField('type', e.target.value)}
                 />
 
                 <label>key</label>
                 <input
-                    style={{ width: '100%' }}
-                    value={selectedNode.data.conditional?.key || ''}
-                    onChange={(e) => updateConditionalField('key', e.target.value)}
+                  className="w-full mb-2 px-2 py-1 rounded bg-zinc-900 border border-zinc-700"
+                  value={selectedNode.data.conditional?.key || ''}
+                  onChange={(e) => updateConditionalField('key', e.target.value)}
                 />
 
                 <label>value</label>
                 <input
-                    style={{ width: '100%' }}
-                    value={selectedNode.data.conditional?.value || ''}
-                    onChange={(e) => updateConditionalField('value', e.target.value)}
+                  className="w-full px-2 py-1 rounded bg-zinc-900 border border-zinc-700"
+                  value={selectedNode.data.conditional?.value || ''}
+                  onChange={(e) => updateConditionalField('value', e.target.value)}
                 />
-                </>
+              </>
             )}
-            </div>
-
+          </div>
         </>
       )}
     </div>

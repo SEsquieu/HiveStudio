@@ -34,7 +34,7 @@ function App() {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-2 rounded ${
-              activeTab === tab ? 'bg-blue-600' : 'bg-zinc-700 hover:bg-zinc-600'
+              activeTab === tab ? 'bg-blue-700' : 'bg-zinc-700 hover:bg-zinc-600'
             }`}
           >
             {tab === 'builder'
