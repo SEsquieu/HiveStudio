@@ -13,7 +13,7 @@ This tool lets you:
 ## Live Demo
 
 Try the web version at:  
-[https://hive-studio.vercel.app](https://hive-studio.vercel.app)
+[https://studio.hiveos.net](Studio App!)
 
 ---
 
