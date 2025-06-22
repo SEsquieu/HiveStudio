@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
+import { useRef } from 'react';
 import AgentList from './AgentList';
+import TaskList from './TaskList';
+import OverviewStatus from './OverviewStatus';
 
 export default function CoreVisibility() {
   const [status, setStatus] = useState(null);
   const [view, setView] = useState("agents");
+  const prevTaskIdsRef = useRef(new Set());
+  //const [prevTaskIds, setPrevTaskIds] = useState(new Set());
+  const [autoExpandTaskId, setAutoExpandTaskId] = useState(null);
 
   useEffect(() => {
     const fetchStatus = async () => {
@@ -12,6 +18,16 @@ export default function CoreVisibility() {
         const res = await fetch("https://core.hiveos.net/status");
         const data = await res.json();
         setStatus(data);
+        const currentTaskIds = new Set((data.tasks || []).map(t => t.task_id));
+        const newTasks = [...currentTaskIds].filter(id => !prevTaskIdsRef.current.has(id));
+
+        if (newTasks.length > 0) {
+          console.log("Auto-expanding new task:", newTasks[0]);
+          setAutoExpandTaskId(newTasks[0]);
+        }
+
+        prevTaskIdsRef.current = currentTaskIds;
+
       } catch (err) {
         console.error("Failed to fetch status:", err);
       }
@@ -24,29 +40,7 @@ export default function CoreVisibility() {
 
   
   const renderOverview = () => {
-    if (!status) return <p className="text-white">Loading...</p>;
-    return (
-      <div className="text-white">
-        <p>Core Version: {status.core_version}</p>
-        <p>Core ID: {status.core_id}</p>
-        <p>Core Status: {status.core_status}</p>
-        <p>Core Start Time: {new Date(status.core_start_time * 1000).toLocaleString()}</p>
-        <p>Core Uptime: {status.core_uptime} seconds</p>
-        <p>Active Zones: {status.zones?.length || 0}</p>
-        <p>Active Agents: {status.agents?.length || 0}</p>
-        <p>Active Tasks: {status.zones?.reduce((acc, zone) => acc + (zone.task_id ? 1 : 0), 0) || 0}</p>
-        <p>Last Updated: {new Date(status.last_updated * 1000).toLocaleString()}</p>
-        <p>Core Mode: {status.core_mode}</p>
-        <p>Core Type: {status.core_type}</p>
-        <p>Core Version: {status.core_version}</p>  
-        <p>Core Build: {status.core_build}</p>
-        <p>Core Commit: {status.core_commit}</p>
-        <p>Core Branch: {status.core_branch}</p>
-        <p>Core Config: {status.core_config}</p>
-        <p>Core Config Hash: {status.core_config_hash}</p>
-        <p>Core Config Version: {status.core_config_version}</p>  
-      </div>
-    );
+    return <OverviewStatus coreStatus={status} />;
   };
   
   const renderAgents = () => {
@@ -69,17 +63,12 @@ export default function CoreVisibility() {
   };
 
   const renderTasks = () => {
-    if (!status?.zones?.length) return <p>No tasks found.</p>;
     return (
-      <ul>
-        {status.zones.map((zone) => (
-          <li key={zone.task_id} className="mb-2 p-2 border border-green-700 rounded">
-            <strong>Task: {zone.task_id}</strong> <br />
-            Zone ID: {zone.zone_id} <br />
-            Chunk Count: {zone.chunk_count || 'unknown'}
-          </li>
-        ))}
-      </ul>
+      <TaskList
+        tasks={status?.tasks || []}
+        chunks={status?.chunks || []}
+        autoExpandTaskId={autoExpandTaskId}
+      />
     );
   };
 
@@ -107,7 +96,7 @@ export default function CoreVisibility() {
           Tasks
         </button>
       </div>
-      <div className="flex-1 p-6 overflow-auto text-white">
+      <div className="flex-1 p-6 overflow-auto text-white w-[calc(100vw-12rem)] max-w-full">
         <h2 className="text-xl font-bold mb-4">Live Core Status: {view.charAt(0).toUpperCase() + view.slice(1)}</h2>
         {renderContent()}
       </div>

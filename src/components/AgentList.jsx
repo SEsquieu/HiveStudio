@@ -2,11 +2,21 @@ import React, { useState } from 'react';
 
 const AgentList = ({ agents }) => {
   const [sortMode, setSortMode] = useState('all'); // 'all' | 'capability' | 'zone' | 'type'
-  const [expandedAgentId, setExpandedAgentId] = useState(null);
+  const [expandedAgents, setExpandedAgents] = useState(new Set());
+
 
   const toggleExpand = (agentId) => {
-    setExpandedAgentId(expandedAgentId === agentId ? null : agentId);
+    setExpandedAgents(prev => {
+      const updated = new Set(prev);
+      if (updated.has(agentId)) {
+        updated.delete(agentId);
+      } else {
+        updated.add(agentId);
+      }
+      return updated;
+    });
   };
+
 
   const groupAgents = (agents) => {
     if (sortMode === 'capability') {
@@ -51,42 +61,60 @@ const AgentList = ({ agents }) => {
         <div key={group} className="mb-6">
           {sortMode !== 'all' && <h3 className="text-lg font-bold mb-2">{group}</h3>}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {groupAgents.map((agent) => (
-              <div
-                key={agent.agent_id}
-                className={`border rounded-2xl p-4 shadow hover:shadow-xl transition-all duration-200 cursor-pointer bg-zinc-900 border-zinc-700`}
-                onClick={() => toggleExpand(agent.agent_id)}
-              >
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-semibold text-lg text-white">{agent.name || agent.agent_id}</span>
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      agent.status === 'working' ? 'bg-blue-600' :
-                      agent.status === 'idle' ? 'bg-green-600' :
-                      agent.status === 'cooldown' ? 'bg-yellow-600' : 'bg-gray-600'
-                    } text-white`}
-                  >
-                    {agent.status}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-400">ID: {agent.agent_id}</div>
-                <hr className="my-2 border-zinc-700" />
-                <div className="text-sm text-gray-300">Zone: {agent.zone || 'None'}</div>
-                <div className="text-sm text-gray-300">Capabilities: {(Array.isArray(agent.capabilities) ? agent.capabilities : [agent.capabilities || "unknown"]).join(", ")}</div>
-                
-                {expandedAgentId === agent.agent_id && (
-                  <div className="mt-3 text-sm text-gray-400 space-y-1">
-                    <div>Execution Started: {String(agent.execution_started)}</div>
-                    <div>Current Chunk: {agent.current_chunk || 'None'}</div>
-                    <div>Chunk Progress: {agent.chunk_progress || 0}</div>
-                    <div>Required Ticks: {agent.required_ticks || 'N/A'}</div>
-                    {agent.realtime_timing && (
-                      <div>Realtime Delay: {agent.realtime_timing.seconds || 0}s {agent.realtime_timing.ms || 0}ms</div>
-                    )}
+            {groupAgents.map((agent) => {
+              const bgClass =
+                agent.status === 'working' && agent.execution_started
+                  ? 'bg-green-900'
+                  : agent.status === 'working' && !agent.execution_started
+                  ? 'bg-yellow-900'
+                  : agent.status === 'cooldown'
+                  ? 'bg-amber-800'
+                  : 'bg-zinc-900';
+
+              return (
+                <div
+                  key={agent.agent_id}
+                  className={`self-start border rounded-2xl p-4 shadow hover:shadow-xl transition-all duration-200 cursor-pointer ${bgClass} border-zinc-700`}
+                  onClick={() => toggleExpand(agent.agent_id)}
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-semibold text-lg text-white">{agent.name || agent.agent_id}</span>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        agent.status === 'working' ? 'bg-blue-600' :
+                        agent.status === 'idle' ? 'bg-green-600' :
+                        agent.status === 'cooldown' ? 'bg-yellow-600' : 'bg-gray-600'
+                      } text-white`}
+                    >
+                      {agent.status}
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
+                  <div className="text-sm text-gray-400">ID: {agent.agent_id}</div>
+                  <hr className="my-2 border-zinc-700" />
+                  <div className="text-sm text-gray-300">Zone: {agent.zone || 'None'}</div>
+                  <div className="text-sm text-gray-300">Capabilities: {(Array.isArray(agent.capabilities) ? agent.capabilities : [agent.capabilities || "unknown"]).join(", ")}</div>
+                  
+                  {expandedAgents.has(agent.agent_id) && (
+                    <div className="mt-3 text-sm text-gray-400">
+                      <hr className="my-3 border-zinc-700" />
+                      <div className="grid grid-cols-2 gap-y-1 text-sm text-gray-400">
+                        <div><strong>Exec Started:</strong> {String(agent.execution_started)}</div>
+                        <div><strong>Chunk:</strong> {agent.current_chunk || 'None'}</div>
+                        <div><strong>Progress:</strong> {agent.chunk_progress || 0}</div>
+                        <div><strong>Req Ticks:</strong> {agent.required_ticks || 'N/A'}</div>
+                        {agent.realtime_timing && (
+                          <div className="col-span-2">
+                            <strong>Realtime:</strong> {agent.realtime_timing.seconds || 0}s {agent.realtime_timing.ms || 0}ms
+                          </div>
+                        )}
+                      </div>
+
+                    </div>
+
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       ))}
