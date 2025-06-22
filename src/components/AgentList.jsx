@@ -12,7 +12,7 @@ const AgentList = ({ agents }) => {
     if (sortMode === 'capability') {
       return groupBy(agents, 'capabilities');
     } else if (sortMode === 'zone') {
-      return groupBy(agents, 'zone_id');
+      return groupBy(agents, 'zone');
     } else if (sortMode === 'type') {
       return groupBy(agents, 'type');
     }
@@ -36,7 +36,7 @@ const AgentList = ({ agents }) => {
       <div className="flex gap-2 mb-4">
         <label>Sort by:</label>
         <select
-          className="border px-2 py-1 rounded"
+          className="border px-2 py-1 rounded bg-zinc-800 text-white"
           value={sortMode}
           onChange={(e) => setSortMode(e.target.value)}
         >
@@ -54,20 +54,28 @@ const AgentList = ({ agents }) => {
             {groupAgents.map((agent) => (
               <div
                 key={agent.agent_id}
-                className="border border-gray-400 rounded p-4 shadow hover:shadow-lg cursor-pointer"
+                className={`border rounded-2xl p-4 shadow hover:shadow-xl transition-all duration-200 cursor-pointer bg-zinc-900 border-zinc-700`}
                 onClick={() => toggleExpand(agent.agent_id)}
               >
-                <div className="flex items-center justify-between">
-                  <strong>{agent.agent_id}</strong>
-                  {agent.realtime_timing && (
-                    <span title="Realtime agent" className="text-sm text-blue-600">⏱</span>
-                  )}
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-semibold text-lg text-white">{agent.name || agent.agent_id}</span>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      agent.status === 'working' ? 'bg-blue-600' :
+                      agent.status === 'idle' ? 'bg-green-600' :
+                      agent.status === 'cooldown' ? 'bg-yellow-600' : 'bg-gray-600'
+                    } text-white`}
+                  >
+                    {agent.status}
+                  </span>
                 </div>
-                <div className="text-sm text-gray-600">Status: {agent.status}</div>
-                <div className="text-sm text-gray-600">Zone: {agent.zone_id || 'None'}</div>
-                <div className="text-sm text-gray-600">Capabilities: {(Array.isArray(agent.capabilities) ? agent.capabilities : [agent.capabilities || "unknown"]).join(", ")}</div>
+                <div className="text-sm text-gray-400">ID: {agent.agent_id}</div>
+                <hr className="my-2 border-zinc-700" />
+                <div className="text-sm text-gray-300">Zone: {agent.zone || 'None'}</div>
+                <div className="text-sm text-gray-300">Capabilities: {(Array.isArray(agent.capabilities) ? agent.capabilities : [agent.capabilities || "unknown"]).join(", ")}</div>
+                
                 {expandedAgentId === agent.agent_id && (
-                  <div className="mt-3 text-sm text-gray-800">
+                  <div className="mt-3 text-sm text-gray-400 space-y-1">
                     <div>Execution Started: {String(agent.execution_started)}</div>
                     <div>Current Chunk: {agent.current_chunk || 'None'}</div>
                     <div>Chunk Progress: {agent.chunk_progress || 0}</div>
