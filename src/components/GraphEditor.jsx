@@ -25,11 +25,11 @@ const initialNodes = [
     type: 'default',
     position: { x: 100, y: 100 },
     data: {
-      chunk_id: 'intro_terminal',
-      required_capability: 'terminal',
+      chunk_id: 'sim_display_1',
+      required_capability: 'display',
       payload: {
-        intent: 'wait_for_input',
-        parameters: { prompt: 'Enter a number!' }
+        intent: 'render_text',
+        parameters: { text: 'I\'m a display!' }
       },
     },
   }
