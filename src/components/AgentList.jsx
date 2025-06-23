@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getCoreEndpoint } from '../utils/coreEndpoint';
 
 const AgentList = ({ agents }) => {
   const [sortMode, setSortMode] = useState('all'); // 'all' | 'capability' | 'zone' | 'type'
@@ -108,6 +109,43 @@ const AgentList = ({ agents }) => {
                           </div>
                         )}
                       </div>
+
+                      {agent.type === "SimDisplay" || agent.type === "SimTerminal" ? (
+                        <div className="mt-3 bg-zinc-800 p-3 rounded-lg text-green-300 font-mono text-xs max-h-40 overflow-y-auto border border-zinc-700">
+                          <div className="mb-1 text-gray-400 font-semibold">Simulated Output</div>
+                          <pre className="whitespace-pre-wrap">{agent.latest_output || "(no output yet)"}</pre>
+                          {agent.status === "working" && agent.current_intent === "wait_for_input" && (
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <form
+                                onSubmit={async (e) => {
+                                  e.preventDefault();
+                                  const input = e.target.input.value.trim();
+                                  if (!input) return;
+                                  await fetch(`${getCoreEndpoint()}/agent_input`, {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ agent_id: agent.agent_id, input }),
+                                  });
+                                  e.target.reset();
+                                }}
+                                className="mt-2 flex gap-2"
+                              >
+                                <input
+                                  name="input"
+                                  className="flex-1 px-2 py-1 rounded bg-black text-green-400 border border-zinc-600 font-mono text-xs"
+                                  placeholder="Type response..."
+                                />
+                                <button
+                                  type="submit"
+                                  className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white text-xs font-bold"
+                                >
+                                  Send
+                                </button>
+                              </form>
+                            </div>    
+                          )}
+                        </div>
+                      ) : null}
 
                     </div>
 

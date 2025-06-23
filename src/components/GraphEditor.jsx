@@ -9,6 +9,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import yaml from 'js-yaml';
+import { getCoreEndpoint } from '../utils/coreEndpoint';
 
 import Sidebar from './Sidebar';
 
@@ -25,17 +26,71 @@ const initialNodes = [
     type: 'default',
     position: { x: 100, y: 100 },
     data: {
-      chunk_id: 'sim_display_1',
+      chunk_id: 'chunk_1',
       required_capability: 'display',
       payload: {
         intent: 'render_text',
-        parameters: { text: 'I\'m a display!' }
+        parameters: { text: 'Step 1' }
       },
+      ttl: 2,
+      timing: 'seconds'
+    },
+  },
+  {
+    id: '2',
+    type: 'default',
+    position: { x: 350, y: 100 },
+    data: {
+      chunk_id: 'chunk_2',
+      required_capability: 'display',
+      payload: {
+        intent: 'render_text',
+        parameters: { text: 'Step 2' }
+      },
+      depends_on: 'chunk_1',
+      ttl: 3,
+      timing: 'seconds'
+    },
+  },
+  {
+    id: '3',
+    type: 'default',
+    position: { x: 600, y: 100 },
+    data: {
+      chunk_id: 'chunk_3',
+      required_capability: 'display',
+      payload: {
+        intent: 'render_text',
+        parameters: { text: 'Step 3' }
+      },
+      depends_on: 'chunk_2',
+      ttl: 5,
+      timing: 'seconds'
+    },
+  },
+  {
+    id: '4',
+    type: 'default',
+    position: { x: 850, y: 100 },
+    data: {
+      chunk_id: 'chunk_4',
+      required_capability: 'display',
+      payload: {
+        intent: 'render_text',
+        parameters: { text: 'Step 4' }
+      },
+      depends_on: 'chunk_3',
+      ttl: 7,
+      timing: 'seconds'
     },
   }
 ];
 
-const initialEdges = [];
+const initialEdges = [
+  { id: 'e1-2', source: '1', target: '2', animated: true, style: { stroke: '#888' } },
+  { id: 'e2-3', source: '2', target: '3', animated: true, style: { stroke: '#888' } },
+  { id: 'e3-4', source: '3', target: '4', animated: true, style: { stroke: '#888' } },
+];
 
 function GraphEditorInner({ onInject }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -217,7 +272,8 @@ function GraphEditorInner({ onInject }) {
     const task = buildTaskYAML();
     const yamlOutput = yaml.dump(task); // or however your export function works
     try {
-      const res = await fetch("https://core.hiveos.net/inject_yaml", {
+      const res = await fetch(`${getCoreEndpoint()}/inject_yaml`, {
+      //const res = await fetch("https://core.hiveos.net/inject_yaml", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-yaml",

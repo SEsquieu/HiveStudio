@@ -4,6 +4,8 @@ import { useRef } from 'react';
 import AgentList from './AgentList';
 import TaskList from './TaskList';
 import OverviewStatus from './OverviewStatus';
+import RuntimeControlPanel from './RuntimeControlPanel';
+import { getCoreEndpoint } from '../utils/coreEndpoint';
 
 export default function CoreVisibility() {
   const [status, setStatus] = useState(null);
@@ -15,7 +17,8 @@ export default function CoreVisibility() {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const res = await fetch("https://core.hiveos.net/status");
+        const res = await fetch(`${getCoreEndpoint()}/status`);
+        //const res = await fetch("https://core.hiveos.net/status");
         const data = await res.json();
         setStatus(data);
         const currentTaskIds = new Set((data.tasks || []).map(t => t.task_id));
@@ -40,7 +43,16 @@ export default function CoreVisibility() {
 
   
   const renderOverview = () => {
-    return <OverviewStatus coreStatus={status} />;
+    return (
+      <>
+        <OverviewStatus coreStatus={status} />
+        <RuntimeControlPanel
+          agents={status?.agents || []}
+          tasks={status?.tasks || []}
+          zones={status?.zones?.map(z => z.zone_id) || []}
+        />
+      </>
+    );
   };
   
   const renderAgents = () => {
