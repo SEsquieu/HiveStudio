@@ -68,9 +68,10 @@ function App() {
         <div style={{ display: activeTab === 'telemetry' ? 'flex' : 'none', flex: 1 }}>
           <TelemetryDashboard />
         </div>
-        <div style={{ display: activeTab === 'core' ? 'flex' : 'none', flex: 1 }}>
-          <CoreVisibility />
-        </div>
+        <CoreVisibility
+          onLoadYamlToEditor={handleLoadYamlToEditor}
+          onEditTask={() => setActiveTab('builder')}
+        />
       </div>
     </div>
   );
