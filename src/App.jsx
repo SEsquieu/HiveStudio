@@ -70,10 +70,6 @@ function App() {
         </div>
         <div style={{ display: activeTab === 'core' ? 'flex' : 'none', flex: 1 }}>
           <CoreVisibility />
-          <RuntimeControlPanel 
-            onLoadYamlToEditor={handleLoadYamlToEditor} 
-            onEditTask={() => setActiveTab('builder')}
-          />
         </div>
       </div>
     </div>

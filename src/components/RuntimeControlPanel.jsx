@@ -5,7 +5,7 @@ import { Pause, Play, SkipForward } from "lucide-react";
 function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus, onLoadYamlToEditor, onEditTask }) {
 
   
-  console.trace("🧨 RuntimeControlPanel rendered with bad props:", { onLoadYamlToEditor, onEditTask });
+  //console.trace("🧨 RuntimeControlPanel rendered with bad props:", { onLoadYamlToEditor, onEditTask });
 
 
 
