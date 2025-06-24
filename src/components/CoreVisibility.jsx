@@ -8,6 +8,7 @@ import RuntimeControlPanel from './RuntimeControlPanel';
 import { getCoreEndpoint } from '../utils/coreEndpoint';
 
 export default function CoreVisibility({ onLoadYamlToEditor, onEditTask }) {
+  console.log("✅ CoreVisibility received props:", { onLoadYamlToEditor, onEditTask });
   const [status, setStatus] = useState(null);
   const [view, setView] = useState("agents");
   const prevTaskIdsRef = useRef(new Set());
