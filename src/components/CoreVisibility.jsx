@@ -50,6 +50,7 @@ export default function CoreVisibility() {
           agents={status?.agents || []}
           tasks={status?.tasks || []}
           zones={status?.zones?.map(z => z.zone_id) || []}
+          coreStatus={status}
         />
       </>
     );

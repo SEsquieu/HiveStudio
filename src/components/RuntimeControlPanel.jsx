@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { getCoreEndpoint } from "../utils/coreEndpoint";
+import { Pause, Play, SkipForward } from "lucide-react";
 
-function RuntimeControlPanel({ agents = [], tasks = [], zones = [] }) {
+function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus }) {
   const [agentSource, setAgentSource] = useState("sim");  // 'sim' or 'hardware'
   const [agentCapability, setAgentCapability] = useState("display");
   const [agentIdToRemove, setAgentIdToRemove] = useState("");
   const [taskIdToNuke, setTaskIdToNuke] = useState("");
   const [zoneIdToControl, setZoneIdToControl] = useState("");
   const [section, setSection] = useState("agent");
+  //const [coreStatus, setCoreStatus] = useState(null);
 
   useEffect(() => {
     if (agents.length && !agents.some((a) => a.agent_id === agentIdToRemove)) {
@@ -202,12 +204,105 @@ function RuntimeControlPanel({ agents = [], tasks = [], zones = [] }) {
         >
           ⏱ Global Control
         </button>
+
         {section === "core" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 p-4 border border-zinc-600 rounded-lg bg-zinc-800">
-            <button onClick={() => makePost("pause_core")} className="bg-orange-600 hover:bg-orange-700 px-4 py-2 rounded text-white font-semibold">Pause Core</button>
-            <button onClick={() => makePost("resume_core")} className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white font-semibold">Resume Core</button>
+          <div className="mt-3 p-4 rounded-lg bg-zinc-900 border border-zinc-700">
+            <div className="flex flex-col md:flex-row justify-between gap-6 items-start md:items-center">
+
+              {/* Left: Core Info */}
+              <div className="text-sm text-zinc-300 space-y-1 min-w-[160px]">
+                <div className="flex items-center gap-2">
+                  <strong>Status:</strong>
+                  <span
+                    className={`inline-block w-3 h-3 rounded-full ${
+                      coreStatus?.core_running ? "bg-green-500 animate-pulse" : "bg-red-500"
+                    }`}
+                    title={coreStatus?.core_running ? "Running" : "Paused"}
+                  />
+                  <span className="text-zinc-400 text-xs">
+                    {coreStatus?.core_running ? "Running" : "Paused"}
+                  </span>
+                </div>
+
+                <div><strong>Instance ID:</strong> hive-core-dev</div>
+                <div><strong>Uptime:</strong> {coreStatus?.uptime ?? "0s"}</div>
+                <div><strong>Ticks:</strong> {coreStatus?.ticks ?? 0}</div>
+                <div><strong>Tickrate:</strong> {coreStatus?.tickrate ?? 0}s</div>
+              </div>
+
+
+              {/* Middle: Tickrate Control */}
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const tickrate = parseFloat(e.target.tickrate.value);
+                  if (!isNaN(tickrate)) {
+                    await fetch(`${getCoreEndpoint()}/set_tickrate`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ tickrate }),
+                    });
+                  }
+                }}
+                className="flex flex-col items-center gap-1 min-w-[160px]"
+              >
+                <label className="text-sm text-zinc-400">Tickrate (s)</label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="tickrate"
+                    min="0.01"
+                    className="w-20 px-2 py-1 text-sm rounded bg-zinc-800 border border-zinc-600 text-white"
+                    defaultValue={0.1}
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </form>
+
+              {/* Right: Control Buttons */}
+              <div className="flex gap-8 justify-center md:justify-end w-full md:w-auto">
+                <div className="flex flex-col items-center text-white text-xs">
+                  <button
+                    onClick={() => makePost("pause_core")}
+                    className="p-3 bg-orange-600 hover:bg-orange-700 text-white rounded-full shadow-md flex items-center justify-center"
+                    title="Pause Core"
+                  >
+                    <Pause size={20} />
+                  </button>
+                  <span className="mt-1 text-zinc-400">Pause</span>
+                </div>
+                <div className="flex flex-col items-center text-white text-xs">
+                  <button
+                    onClick={() => makePost("resume_core")}
+                    className="p-3 bg-green-600 hover:bg-green-700 text-white rounded-full shadow-md flex items-center justify-center"
+                    title="Resume Core"
+                  >
+                    <Play size={20} />
+                  </button>
+                  <span className="mt-1 text-zinc-400">Resume</span>
+                </div>
+                <div className="flex flex-col items-center text-white text-xs">
+                  <button
+                    onClick={() => makePost("step_tick")}
+                    className="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md flex items-center justify-center"
+                    title="Step Tick"
+                  >
+                    <SkipForward size={20} />
+                  </button>
+                  <span className="mt-1 text-zinc-400">Step</span>
+                </div>
+              </div>
+            </div>
           </div>
         )}
+
+
       </div>
     </div>
   );
