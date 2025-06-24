@@ -7,7 +7,7 @@ import OverviewStatus from './OverviewStatus';
 import RuntimeControlPanel from './RuntimeControlPanel';
 import { getCoreEndpoint } from '../utils/coreEndpoint';
 
-export default function CoreVisibility() {
+export default function CoreVisibility({ onLoadYamlToEditor, onEditTask }) {
   const [status, setStatus] = useState(null);
   const [view, setView] = useState("agents");
   const prevTaskIdsRef = useRef(new Set());
@@ -50,7 +50,12 @@ export default function CoreVisibility() {
           agents={status?.agents || []}
           tasks={status?.tasks || []}
           zones={status?.zones?.map(z => z.zone_id) || []}
-          coreStatus={status}
+          coreStatus={{
+            ...status,
+            zones: Object.fromEntries((status?.zones || []).map(z => [z.zone_id, z]))
+          }}
+          onLoadYamlToEditor={onLoadYamlToEditor}
+          onEditTask={onEditTask}
         />
       </>
     );
@@ -80,6 +85,7 @@ export default function CoreVisibility() {
       <TaskList
         tasks={status?.tasks || []}
         chunks={status?.chunks || []}
+        zones={status?.zones || []}
         autoExpandTaskId={autoExpandTaskId}
       />
     );

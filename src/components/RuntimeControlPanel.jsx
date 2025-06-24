@@ -2,14 +2,25 @@ import React, { useState, useEffect } from "react";
 import { getCoreEndpoint } from "../utils/coreEndpoint";
 import { Pause, Play, SkipForward } from "lucide-react";
 
-function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus }) {
+function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus, onLoadYamlToEditor, onEditTask }) {
+
+  
+  //console.trace("🧨 RuntimeControlPanel rendered with bad props:", { onLoadYamlToEditor, onEditTask });
+
+
+
   const [agentSource, setAgentSource] = useState("sim");  // 'sim' or 'hardware'
   const [agentCapability, setAgentCapability] = useState("display");
   const [agentIdToRemove, setAgentIdToRemove] = useState("");
   const [taskIdToNuke, setTaskIdToNuke] = useState("");
   const [zoneIdToControl, setZoneIdToControl] = useState("");
   const [section, setSection] = useState("agent");
+
+  const currentZoneStatus = coreStatus?.zones?.[zoneIdToControl];
+  const isZoneFrozen = currentZoneStatus?.frozen;
+
   //const [coreStatus, setCoreStatus] = useState(null);
+  //console.log("🧬 RENDERED RuntimeControlPanel", { onLoadYamlToEditor, onEditTask });
 
   useEffect(() => {
     if (agents.length && !agents.some((a) => a.agent_id === agentIdToRemove)) {
@@ -32,6 +43,36 @@ function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus }
     const data = await res.json();
     console.log(`${endpoint}:`, data);
   };
+
+  const handleTaskAction = async (action) => {
+    if (!taskIdToNuke) return;
+
+    if (action === "inject") {
+      await makePost("reinject_task", { task_id: taskIdToNuke });
+    } else if (action === "delete") {
+      await makePost("delete_task", { task_id: taskIdToNuke });
+    } else if (action === "edit") {
+      try {
+        const res = await fetch(`${getCoreEndpoint()}/get_task_yaml`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ task_id: taskIdToNuke }),
+        });
+        const result = await res.json();
+        if (result.yaml) {
+          console.log("✅ Sending YAML to editor:", result.yaml);
+          console.log("👀 About to call onLoadYamlToEditor. Props:", { onLoadYamlToEditor, onEditTask });
+          onLoadYamlToEditor?.(result.yaml);
+          onEditTask?.();  // <- New tab switch
+        }
+
+
+      } catch (err) {
+        console.error("Failed to fetch task YAML:", err);
+      }
+    }
+  };
+
 
   return (
     <div className="mt-8 border-t border-zinc-700 pt-6">
@@ -141,26 +182,57 @@ function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus }
         </button>
         {section === "task" && (
           <div className="mt-3 p-4 border border-zinc-600 rounded-lg bg-zinc-800">
-            <h3 className="font-semibold text-lg mb-2">Nuke Task</h3>
-            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
+            <h3 className="font-semibold text-lg mb-2">Select Task</h3>
+            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto mb-4">
               {tasks.map((task) => (
                 <div
                   key={task.task_id}
                   onClick={() => setTaskIdToNuke(task.task_id)}
                   className={`px-2 py-1 rounded cursor-pointer text-sm text-white text-ellipsis overflow-hidden whitespace-nowrap border 
-                    ${taskIdToNuke === task.task_id ? "bg-red-700 border-red-500" : "bg-zinc-700 border-zinc-500"}`}
+                    ${taskIdToNuke === task.task_id ? "bg-blue-700 border-blue-500" : "bg-zinc-700 border-zinc-500"}`}
                 >
-                  {task.task_id}
+                  <span className="block text-xs text-zinc-400">{task.name || "Unnamed Task"}</span>
+                  <span className="block text-xs">{task.task_id}</span>
                 </div>
               ))}
             </div>
-            <button
-              onClick={() => makePost("nuke_task", { task_id: taskIdToNuke })}
-              className="mt-3 w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-white font-semibold"
-            >
-              Nuke Task
-            </button>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Inject */}
+              <div className="flex flex-col items-center p-4 border border-zinc-600 rounded-lg bg-zinc-900">
+                <button
+                  onClick={() => handleTaskAction("inject")}
+                  className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 rounded font-semibold text-white"
+                >
+                  Inject Task
+                </button>
+                <span className="text-xs mt-2 text-zinc-400">Re-inject task into new zone</span>
+              </div>
+
+              {/* Delete */}
+              <div className="flex flex-col items-center p-4 border border-zinc-600 rounded-lg bg-zinc-900">
+                <button
+                  onClick={() => handleTaskAction("delete")}
+                  className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded font-semibold text-white"
+                >
+                  Delete Task
+                </button>
+                <span className="text-xs mt-2 text-zinc-400">Purge task from runtime</span>
+              </div>
+
+              {/* Edit */}
+              <div className="flex flex-col items-center p-4 border border-zinc-600 rounded-lg bg-zinc-900">
+                <button
+                  onClick={() => handleTaskAction("edit")}
+                  className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded font-semibold text-white"
+                >
+                  Edit Task
+                </button>
+                <span className="text-xs mt-2 text-zinc-400">Send YAML to graph editor</span>
+              </div>
+            </div>
           </div>
+
         )}
       </div>
 
@@ -175,7 +247,7 @@ function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus }
         {section === "zone" && (
           <div className="mt-3 p-4 border border-zinc-600 rounded-lg bg-zinc-800">
             <h3 className="font-semibold text-lg mb-2">Select Zone</h3>
-            <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-3">
               {zones.map((z) => (
                 <div
                   key={z}
@@ -187,10 +259,37 @@ function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus }
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <button onClick={() => makePost("freeze_zone", { zone_id: zoneIdToControl })} className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white font-semibold">Freeze</button>
-              <button onClick={() => makePost("unfreeze_zone", { zone_id: zoneIdToControl })} className="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded text-white font-semibold">Unfreeze</button>
-              <button onClick={() => makePost("reset_zone", { zone_id: zoneIdToControl })} className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white font-semibold">Reset</button>
+            <div className="flex flex-col md:flex-row justify-between gap-6 mt-4">
+              {/* Freeze / Unfreeze */}
+              <div className="flex flex-col items-center p-4 border border-zinc-600 rounded-lg bg-zinc-900 w-full">
+                <button
+                  onClick={() =>
+                    makePost(isZoneFrozen ? "unfreeze_zone" : "freeze_zone", {
+                      zone_id: zoneIdToControl,
+                    })
+                  }
+                  className={`w-full px-4 py-2 rounded font-semibold text-white ${
+                    isZoneFrozen
+                      ? "bg-yellow-600 hover:bg-yellow-700"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}
+                >
+                  {isZoneFrozen ? "Unfreeze Zone" : "Freeze Zone"}
+                </button>
+                <span className="text-xs mt-2 text-zinc-400">Pause/resume chunk execution</span>
+              </div>
+
+              {/* Kill */}
+              <div className="flex flex-col items-center p-4 border border-zinc-600 rounded-lg bg-zinc-900 w-full">
+                <button
+                  onClick={() => makePost("kill_zone", { zone_id: zoneIdToControl })}
+                  className="w-full px-4 py-2 bg-red-700 hover:bg-red-800 rounded font-semibold text-white"
+                >
+                  Kill Zone
+                </button>
+                <span className="text-xs mt-2 text-zinc-400">Terminate zone & release agents</span>
+              </div>
+
             </div>
           </div>
         )}

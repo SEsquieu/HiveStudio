@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
   Background,
@@ -92,7 +93,7 @@ const initialEdges = [
   { id: 'e3-4', source: '3', target: '4', animated: true, style: { stroke: '#888' } },
 ];
 
-function GraphEditorInner({ onInject }) {
+function GraphEditorInner({ onInject }, ref) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
@@ -107,6 +108,47 @@ function GraphEditorInner({ onInject }) {
   const onNodeClick = useCallback((_, node) => {
     setSelectedNodeId(node.id);
   }, []);
+
+  useImperativeHandle(ref, () => ({
+    loadFromYAMLData(data) {
+      setTaskConfig({
+        task_name: data.task_name || '',
+        execution_mode: data.execution_mode || 'concurrent',
+        capability_required: data.capability_required || []
+      });
+
+      const newNodes = data.chunks.map((chunk, index) => ({
+        id: chunk.chunk_id,
+        position: { x: (index % 4) * 250, y: Math.floor(index / 4) * 150 },
+        type: 'default',
+        data: {
+          chunk_id: chunk.chunk_id,
+          required_capability: chunk.required_capability,
+          payload: {
+            intent: chunk.payload?.intent || '',
+            parameters: chunk.payload?.parameters || {}
+          },
+          depends_on: chunk.depends_on || '',
+          ttl: chunk.ttl,
+          timing: chunk.timing || '',
+          conditional: typeof chunk.conditional === 'object' ? { ...chunk.conditional } : undefined
+        }
+      }));
+
+      const newEdges = data.chunks
+        .filter(chunk => chunk.depends_on)
+        .map(chunk => ({
+          id: `e${chunk.depends_on}-${chunk.chunk_id}`,
+          source: chunk.depends_on,
+          target: chunk.chunk_id,
+          animated: true,
+          style: { stroke: '#888' }
+        }));
+
+      setNodes(newNodes);
+      setEdges(newEdges);
+    }
+  }));
 
   const buildTaskYAML = () => {
     return {
@@ -434,10 +476,11 @@ const buttonStyle = {
   cursor: 'pointer'
 };
 
-export default function GraphEditor({ onInject }) {
-  return (
-    <ReactFlowProvider>
-      <GraphEditorInner onInject={onInject}/>
-    </ReactFlowProvider>
-  );
-}
+const GraphEditor = forwardRef((props, ref) => (
+  <ReactFlowProvider>
+    <GraphEditorInner {...props} ref={ref} />
+  </ReactFlowProvider>
+));
+
+export default GraphEditor;
+
