@@ -154,7 +154,7 @@ const GraphEditorInner = forwardRef((props, ref) => {
           style: { stroke: '#888' }
         }));
 
-      setNodes(newNodes);
+      setNodes(decorateNodes(newNodes));
       setEdges(newEdges);
     }
   }));
@@ -256,6 +256,34 @@ const GraphEditorInner = forwardRef((props, ref) => {
 
     reader.readAsText(file);
   };
+
+  const decorateNodes = (rawNodes) => rawNodes.map((node) => {
+    const valid = isValidChunk(node.data);
+    const capColor = capabilityColors[node.data.required_capability] || capabilityColors.default;
+
+    return {
+      ...node,
+      data: {
+        ...node.data,
+        label: (
+          <div style={{ fontFamily: 'monospace', color: '#f8f8f8' }}>
+            <strong>{node.data.chunk_id}</strong><br />
+            <small>{node.data.payload?.intent || ''}</small>
+          </div>
+        )
+      },
+      style: {
+        background: valid ? '#2c2c2c' : '#402020',
+        border: valid ? `2px solid ${capColor}` : '2px solid red',
+        color: '#f8f8f8',
+        fontSize: '14px',
+        fontFamily: 'monospace',
+        borderRadius: '6px',
+        padding: '8px',
+      }
+    };
+  });
+
 
   const isValidChunk = (data) => {
     const { chunk_id, required_capability, payload } = data;
