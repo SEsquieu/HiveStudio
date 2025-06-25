@@ -4,7 +4,7 @@ import { Pause, Play, SkipForward } from "lucide-react";
 
 function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus, onLoadYamlToEditor, onEditTask }) {
 
-  console.log("🟡 RuntimeControlPanel props:", { onLoadYamlToEditor, onEditTask });
+  //console.log("🟡 RuntimeControlPanel props:", { onLoadYamlToEditor, onEditTask });
 
   const [agentSource, setAgentSource] = useState("sim");  // 'sim' or 'hardware'
   const [agentCapability, setAgentCapability] = useState("display");
