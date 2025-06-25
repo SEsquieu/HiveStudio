@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Snowflake, Flame } from "lucide-react";
+import { RotateCcw, Pencil, X } from "lucide-react";
 import { getCoreEndpoint } from "../utils/coreEndpoint";
 
 
-const TaskList = ({ tasks, chunks, zones, autoExpandTaskId }) => {
+const TaskList = ({ tasks, chunks, zones, autoExpandTaskId, onEditTask, onLoadYamlToEditor }) => {
   const [expandedTaskIds, setExpandedTaskIds] = useState(new Set());
 
   useEffect(() => {
@@ -69,10 +70,8 @@ const TaskList = ({ tasks, chunks, zones, autoExpandTaskId }) => {
                 : task.status === 'running'
                 ? 'bg-blue-950'
                 : 'bg-zinc-900'
-            } ${isFrozen ? 'opacity-60 ring-2 ring-blue-500 shadow-[0_0_12px_10px_rgba(59,130,246,0.8)]' : ''}
-`}
+            } ${isFrozen ? 'opacity-60 ring-2 ring-blue-500 shadow-[0_0_12px_10px_rgba(59,130,246,0.8)]' : ''}`}
           >
-
             <div
               className="p-4 cursor-pointer flex flex-col gap-1"
               onClick={() => toggleExpand(task.task_id)}
@@ -93,7 +92,7 @@ const TaskList = ({ tasks, chunks, zones, autoExpandTaskId }) => {
                   {task.status}
                 </span>
               </div>
-              <div className="text-sm text-gray-400 flex items-center gap-2">
+              <div className="text-sm text-gray-400 flex items-center gap-1">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -103,11 +102,70 @@ const TaskList = ({ tasks, chunks, zones, autoExpandTaskId }) => {
                   className={`mr-1 mt-0.5 text-xs ${
                     isFrozen ? "text-orange-400 hover:text-orange-300" : "text-blue-400 hover:text-blue-300"
                   }`}
-                  style={{ padding: 0, lineHeight: 1 }}
+                  style={{ padding: 4, lineHeight: 1 }}
                 >
                   {isFrozen ? <Flame size={14} /> : <Snowflake size={14} />}
                 </button>
+                
+                {isExpanded && (
+                  <div className="flex gap-2 mr-1 mt-0.5 text-xs">
+                    <button
+                      className="text-green-500 hover:text-green-300 transition"
+                      style={{ padding: 4, lineHeight: 1 }}
+                      title="Reinject"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fetch(`${getCoreEndpoint()}/reinject_task`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ task_id: task.task_id }),
+                        }).catch(console.error);
+                      }}
+                    >
+                      <RotateCcw size={14} />
+                    </button>
+                    <button
+                      className="text-purple-500 hover:text-purple-400 transition"
+                      style={{ padding: 4, lineHeight: 1 }}
+                      title="Edit"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fetch(`${getCoreEndpoint()}/get_task_yaml`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ task_id: task.task_id }),
+                        })
+                          .then((res) => res.json())
+                          .then((data) => {
+                            onLoadYamlToEditor?.(data.yaml);
+                            onEditTask?.();
+                          })
+                          .catch(console.error);
+                      }}
+                    >
+                      <Pencil size={14} />
+                    </button>
+
+
+                    <button
+                      className="text-red-500 hover:text-red-400 transition"
+                      style={{ padding: 4, lineHeight: 1 }}
+                      title="Delete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fetch(`${getCoreEndpoint()}/delete_task`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ task_id: task.task_id }),
+                        }).catch(console.error);
+                      }}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                )}
                 <span>Zone: {task.zone_id || 'Unassigned'} | Chunks: {taskChunks.length}</span>
+
               </div>
 
             </div>

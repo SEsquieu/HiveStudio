@@ -32,8 +32,7 @@ const initialNodes = [
         intent: 'render_text',
         parameters: { text: 'Step 1' }
       },
-      ttl: 2,
-      timing: 'seconds'
+      ttl: 5,
     },
   },
   {
@@ -81,7 +80,6 @@ const initialNodes = [
       },
       depends_on: 'chunk_3',
       ttl: 7,
-      timing: 'seconds'
     },
   }
 ];

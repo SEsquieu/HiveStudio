@@ -126,6 +126,7 @@ function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus, 
                     <option value="sensor">sensor</option>
                     <option value="motor">motor</option>
                     <option value="terminal">terminal</option>
+                    <option value="random-output">random-output</option>
                     {/* Add more as needed */}
                 </select>
 
