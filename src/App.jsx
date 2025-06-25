@@ -21,19 +21,25 @@ function App() {
 
 
   const handleLoadYamlToEditor = (yaml) => {
-    if (graphEditorRef.current && graphEditorRef.current.loadYamlToEditor) {
-      graphEditorRef.current.loadYamlToEditor(yaml);
-    } else {
+    const tryInject = () => {
+      if (graphEditorRef.current && graphEditorRef.current.loadYamlToEditor) {
+        console.log("✅ Injecting YAML into GraphEditor");
+        graphEditorRef.current.loadYamlToEditor(yaml);
+        return true;
+      }
+      return false;
+    };
+
+    if (!tryInject()) {
       console.warn("⏳ Waiting for GraphEditor to mount...");
-      const waitForMount = setInterval(() => {
-        if (graphEditorRef.current && graphEditorRef.current.loadYamlToEditor) {
-          console.log("✅ GraphEditor is now mounted, injecting YAML");
-          graphEditorRef.current.loadYamlToEditor(yaml);
-          clearInterval(waitForMount);
+      const interval = setInterval(() => {
+        if (tryInject()) {
+          clearInterval(interval);
         }
-      }, 100); // check every 100ms
+      }, 100);
     }
   };
+
 
 
   return (
