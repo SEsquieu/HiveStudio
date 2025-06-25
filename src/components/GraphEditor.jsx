@@ -296,7 +296,12 @@ const GraphEditorInner = forwardRef((props, ref) => {
     if (typeof payload.parameters !== 'object') return false;
     if (data.conditional) {
       const { type, key, value } = data.conditional;
-      if (!type || !key || value === undefined) return false;
+
+      // ❌ Only error if some fields are filled but not all
+      const fieldsFilled = [type, key, value].filter(Boolean).length;
+      if (fieldsFilled > 0 && fieldsFilled < 3) {
+        return false;
+      }
     }
     if (data.timing && !['ticks', 'seconds', 'ms'].includes(data.timing)) return false;
     if (data.ttl && typeof data.ttl !== 'number') return false;
