@@ -473,7 +473,7 @@ const GraphEditorInner = forwardRef((props, ref) => {
       </div>
     </div>
   );
-},);
+});
 
 const buttonStyle = {
   marginBottom: '6px',
@@ -485,10 +485,10 @@ const buttonStyle = {
   cursor: 'pointer'
 };
 
-const GraphEditor = (props, ref) => (
+const GraphEditor = forwardRef((props, ref) => (
   <ReactFlowProvider>
     <GraphEditorInner {...props} ref={ref} />
   </ReactFlowProvider>
-);
+));
 
 export default forwardRef(GraphEditor);
