@@ -105,7 +105,7 @@ function GraphEditorInner(props, ref) {
     capability_required: ['display', 'terminal']
   });
 
-  const graphRef = useRef();
+  //const graphRef = useRef();
 
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) || null;
 
