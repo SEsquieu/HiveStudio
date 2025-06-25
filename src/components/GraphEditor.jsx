@@ -93,7 +93,7 @@ const initialEdges = [
 ];
 
 
-function GraphEditorInner(props, ref) {
+const GraphEditorInner = forwardRef((props, ref) => {
   const { onInject, onMount } = props;
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -473,7 +473,7 @@ function GraphEditorInner(props, ref) {
       </div>
     </div>
   );
-}
+},);
 
 const buttonStyle = {
   marginBottom: '6px',
@@ -485,10 +485,10 @@ const buttonStyle = {
   cursor: 'pointer'
 };
 
-const GraphEditor = forwardRef((props, ref) => (
+const GraphEditor = (props, ref) => (
   <ReactFlowProvider>
     <GraphEditorInner {...props} ref={ref} />
   </ReactFlowProvider>
-));
+);
 
-export default GraphEditor;
+export default forwardRef(GraphEditor);
