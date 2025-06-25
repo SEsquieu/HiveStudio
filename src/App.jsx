@@ -26,10 +26,10 @@ function App() {
     const tryInject = () => {
       if (
         graphEditorRef.current &&
-        graphEditorRef.current.loadYamlToEditor
+        graphEditorRef.current.loadFromYAMLData
       ) {
         console.log("✅ Injecting YAML into GraphEditor");
-        graphEditorRef.current.loadYamlToEditor(yaml);
+        graphEditorRef.current.loadFromYAMLData(yaml);
         return true;
       }
       return false;
