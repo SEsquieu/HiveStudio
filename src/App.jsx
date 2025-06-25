@@ -21,25 +21,19 @@ function App() {
 
 
   const handleLoadYamlToEditor = (yaml) => {
-    console.log("🟦 YAML received, switching tab...");
-    setActiveTab('builder');
-
-    
-
-    // Wait for GraphEditor to mount
-    const tryInject = () => {
-      if (graphEditorRef.current?.loadFromYAMLData) {
-        console.log("✅ GraphEditor mounted, injecting YAML");
-        graphEditorRef.current.loadFromYAMLData(yaml);
-      } else {
-        console.log("⏳ Waiting for GraphEditor to mount...");
-        setTimeout(tryInject, 50);
-      }
-    };
-
-    setTimeout(tryInject, 50);
+    if (graphEditorRef.current && graphEditorRef.current.loadYamlToEditor) {
+      graphEditorRef.current.loadYamlToEditor(yaml);
+    } else {
+      console.warn("⏳ Waiting for GraphEditor to mount...");
+      const waitForMount = setInterval(() => {
+        if (graphEditorRef.current && graphEditorRef.current.loadYamlToEditor) {
+          console.log("✅ GraphEditor is now mounted, injecting YAML");
+          graphEditorRef.current.loadYamlToEditor(yaml);
+          clearInterval(waitForMount);
+        }
+      }, 100); // check every 100ms
+    }
   };
-
 
 
   return (
