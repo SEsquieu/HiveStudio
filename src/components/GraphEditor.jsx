@@ -140,7 +140,9 @@ const GraphEditorInner = forwardRef((props, ref) => {
           depends_on: chunk.depends_on || '',
           ttl: chunk.ttl,
           timing: chunk.timing || '',
-          conditional: typeof chunk.conditional === 'object' ? { ...chunk.conditional } : undefined
+          conditional: typeof chunk.conditional === 'object'
+            ? { ...chunk.conditional }
+            : undefined
         }
       }));
 
