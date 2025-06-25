@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useImperativeHandle, forwardRef } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
   Background,
@@ -93,7 +93,9 @@ const initialEdges = [
   { id: 'e3-4', source: '3', target: '4', animated: true, style: { stroke: '#888' } },
 ];
 
-function GraphEditorInner({ onInject }, ref) {
+
+function GraphEditorInner(props, ref) {
+  const { onInject, onMount } = props;
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
@@ -103,10 +105,18 @@ function GraphEditorInner({ onInject }, ref) {
     capability_required: ['display', 'terminal']
   });
 
+  const graphRef = useRef();
+
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) || null;
 
   const onNodeClick = useCallback((_, node) => {
     setSelectedNodeId(node.id);
+  }, []);
+
+  // ✅ Mount signal
+  useEffect(() => {
+    console.log("✅ GraphEditor mounted");
+    if (onMount) onMount();
   }, []);
 
   useImperativeHandle(ref, () => ({
@@ -483,4 +493,3 @@ const GraphEditor = forwardRef((props, ref) => (
 ));
 
 export default GraphEditor;
-

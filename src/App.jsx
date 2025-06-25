@@ -6,6 +6,8 @@ import RuntimeControlPanel from './components/RuntimeControlPanel'; // ← Add t
 function App() {
   const [activeTab, setActiveTab] = useState('builder');
   const graphEditorRef = useRef();
+  const [isGraphEditorMounted, setIsGraphEditorMounted] = useState(false);
+
 
   function AgentAutoWrapper() {
     return <div className="p-4 text-white">[Agent Auto-Wrapper Coming Soon]</div>;
@@ -22,7 +24,10 @@ function App() {
 
   const handleLoadYamlToEditor = (yaml) => {
     const tryInject = () => {
-      if (graphEditorRef.current && graphEditorRef.current.loadYamlToEditor) {
+      if (
+        graphEditorRef.current &&
+        graphEditorRef.current.loadYamlToEditor
+      ) {
         console.log("✅ Injecting YAML into GraphEditor");
         graphEditorRef.current.loadYamlToEditor(yaml);
         return true;
@@ -33,12 +38,13 @@ function App() {
     if (!tryInject()) {
       console.warn("⏳ Waiting for GraphEditor to mount...");
       const interval = setInterval(() => {
-        if (tryInject()) {
+        if (isGraphEditorMounted && tryInject()) {
           clearInterval(interval);
         }
       }, 100);
     }
   };
+
 
 
 
@@ -60,7 +66,11 @@ function App() {
       {/* Main Content */}
       <div style={{ flex: 1, minHeight: 0, display: 'flex', overflow: 'hidden' }}>
         <div style={{ display: activeTab === 'builder' ? 'flex' : 'none', flex: 1 }}>
-          <GraphEditor ref={graphEditorRef} onInject={() => setActiveTab('core')} />
+          <GraphEditor
+            ref={graphEditorRef}
+            onInject={() => setActiveTab('core')}
+            onMount={() => setIsGraphEditorMounted(true)}
+          />
         </div>
         <div style={{ display: activeTab === 'autowrapper' ? 'flex' : 'none', flex: 1 }}>
           <AgentAutoWrapper />
