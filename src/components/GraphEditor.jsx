@@ -491,4 +491,4 @@ const GraphEditor = forwardRef((props, ref) => (
   </ReactFlowProvider>
 ));
 
-export default forwardRef(GraphEditor);
+export default GraphEditor;
