@@ -5,8 +5,8 @@ import RuntimeControlPanel from './components/RuntimeControlPanel'; // ← Add t
 
 function App() {
   const [activeTab, setActiveTab] = useState('builder');
-  const graphEditorRef = useRef(null);
   const [isGraphEditorMounted, setIsGraphEditorMounted] = useState(false);
+  const graphEditorRef = useRef(null);
 
 
   function AgentAutoWrapper() {
