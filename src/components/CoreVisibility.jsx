@@ -88,6 +88,8 @@ export default function CoreVisibility({ onLoadYamlToEditor, onEditTask }) {
         chunks={status?.chunks || []}
         zones={status?.zones || []}
         autoExpandTaskId={autoExpandTaskId}
+        onEditTask={onEditTask}
+        onLoadYamlToEditor={onLoadYamlToEditor}
       />
     );
   };

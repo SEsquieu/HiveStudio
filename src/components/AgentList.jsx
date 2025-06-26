@@ -110,7 +110,7 @@ const AgentList = ({ agents }) => {
                         )}
                       </div>
 
-                      {agent.type === "SimDisplay" || agent.type === "SimTerminal" ? (
+                      {agent.type === "SimDisplayAgent" || agent.type === "SimTerminalAgent" ? (
                         <div className="mt-3 bg-zinc-800 p-3 rounded-lg text-green-300 font-mono text-xs max-h-40 overflow-y-auto border border-zinc-700">
                           <div className="mb-1 text-gray-400 font-semibold">Simulated Output</div>
                           <pre className="whitespace-pre-wrap">{agent.latest_output || "(no output yet)"}</pre>
