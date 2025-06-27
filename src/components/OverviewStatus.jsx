@@ -1,59 +1,53 @@
 import React from "react";
+//import { switchSession, createSession, deleteSession } from "../utils/coreEndpoint";
 
-const OverviewStatus = ({ coreStatus, sessionId }) => {
+
+const OverviewStatus = ({ coreStatus, sessionId, allSessions = [] }) => {
   if (!coreStatus) return <div className="text-zinc-400">No status data available.</div>;
 
   const agents = coreStatus.agents || [];
   const tasks = coreStatus.tasks || [];
   const zones = coreStatus.zones || [];
+  const chunks = coreStatus.chunks || [];
 
   const capabilities = Array.from(
     new Set(agents.flatMap(agent => agent.capabilities || []))
   );
 
-  const allChunks = coreStatus.chunks || [];
+  const totalChunks = chunks.length;
   const taskChunkCounts = tasks.map(task =>
-    allChunks.filter(chunk => chunk.task_id === task.task_id).length
+    chunks.filter(chunk => chunk.task_id === task.task_id).length
   );
-
-  const totalChunks = allChunks.length;
 
   return (
     <div className="p-4 text-zinc-100">
-      {/* Session Badge */}
-      <div className="mb-4">
-        <span className="bg-blue-800 text-blue-100 px-3 py-1 rounded-full text-sm font-medium">
-          Active Session: {sessionId || "N/A"}
-        </span>
-      </div>
+      <h2 className="text-xl font-semibold mb-4">Live Core Status</h2>
 
-      <h2 className="text-xl font-semibold mb-4">Live Core Status Overview</h2>
-      <ul className="space-y-2 mb-6">
-        <li><span className="font-medium text-zinc-300">Agents:</span> {agents.length}</li>
-        <li><span className="font-medium text-zinc-300">Capabilities:</span> {capabilities.join(", ") || "None"}</li>
-        <li><span className="font-medium text-zinc-300">Zones:</span> {zones.length}</li>
-        <li>
-          <span className="font-medium text-zinc-300">Tasks:</span> {tasks.length}
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-6">
+        <div className="bg-zinc-800 rounded-lg p-4 text-center">
+          <div className="text-sm text-zinc-400">Agents</div>
+          <div className="text-xl font-bold">{agents.length}</div>
+        </div>
+        <div className="bg-zinc-800 rounded-lg p-4 text-center">
+          <div className="text-sm text-zinc-400">Capabilities</div>
+          <div className="text-sm">{capabilities.join(", ") || "None"}</div>
+        </div>
+        <div className="bg-zinc-800 rounded-lg p-4 text-center">
+          <div className="text-sm text-zinc-400">Zones</div>
+          <div className="text-xl font-bold">{zones.length}</div>
+        </div>
+        <div className="bg-zinc-800 rounded-lg p-4 text-center">
+          <div className="text-sm text-zinc-400">Tasks</div>
+          <div className="text-xl font-bold">{tasks.length}</div>
           {tasks.length > 0 && (
-            <span className="text-zinc-400 ml-2">
-              (Chunks per Task: {taskChunkCounts.join(", ")})
-            </span>
+            <div className="text-xs text-zinc-500 mt-1">Chunks/Task: {taskChunkCounts.join(", ")}</div>
           )}
-        </li>
-        <li><span className="font-medium text-zinc-300">Total Chunks:</span> {totalChunks}</li>
-      </ul>
-
-      {/* Session Controls */}
-      <div className="flex flex-wrap gap-2">
-        <button className="bg-green-700 hover:bg-green-800 px-3 py-1 rounded text-sm">
-          ➕ New Session
-        </button>
-        <button className="bg-yellow-700 hover:bg-yellow-800 px-3 py-1 rounded text-sm">
-          🔄 Switch Session
-        </button>
-        <button className="bg-red-700 hover:bg-red-800 px-3 py-1 rounded text-sm">
-          ❌ Delete Session
-        </button>
+        </div>
+        <div className="bg-zinc-800 rounded-lg p-4 text-center">
+          <div className="text-sm text-zinc-400">Chunks</div>
+          <div className="text-xl font-bold">{totalChunks}</div>
+        </div>
       </div>
     </div>
   );
