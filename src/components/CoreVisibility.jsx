@@ -10,7 +10,7 @@ import { getCoreEndpoint } from '../utils/coreEndpoint';
 export default function CoreVisibility({ onLoadYamlToEditor, onEditTask }) {
   //console.log("✅ CoreVisibility received props:", { onLoadYamlToEditor, onEditTask });
   const [status, setStatus] = useState(null);
-  const [view, setView] = useState("agents");
+  const [view, setView] = useState("overview");
   const prevTaskIdsRef = useRef(new Set());
   //const [prevTaskIds, setPrevTaskIds] = useState(new Set());
   const [autoExpandTaskId, setAutoExpandTaskId] = useState(null);

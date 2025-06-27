@@ -5,7 +5,7 @@ import { getSessions, switchSession, deleteSession, createNamedSession } from '.
 import RuntimeControlPanel from './components/RuntimeControlPanel'; // ← Add this import if not already
 
 function App() {
-  const [activeTab, setActiveTab] = useState('builder');
+  const [activeTab, setActiveTab] = useState('core');
   const [isGraphEditorMounted, setIsGraphEditorMounted] = useState(false);
   const graphEditorRef = useRef(null);
   const [activeSession, setActiveSession] = useState('N/A');
@@ -13,6 +13,17 @@ function App() {
   const activeLabel = allSessions.find((s) => s.id === activeSession)?.label || activeSession;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [newSessionName, setNewSessionName] = useState('');
+
+
+  useEffect(() => {
+    if (!localStorage.getItem('hive_user_id')) {
+      const newUserId = crypto.randomUUID();
+      localStorage.setItem('hive_user_id', newUserId);
+      console.log("🔐 Generated new user_id:", newUserId);
+    } else {
+      console.log("🔐 Existing user_id:", localStorage.getItem('hive_user_id'));
+    }
+  }, []);
 
   
   function AgentAutoWrapper() {
@@ -77,7 +88,7 @@ function App() {
       {/* Top Bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 1rem', backgroundColor: '#222', borderBottom: '1px solid #444' }}>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            {['builder', 'autowrapper', 'telemetry', 'core'].map((tab) => (
+            {['core', 'autowrapper', 'telemetry', 'builder'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -167,6 +178,12 @@ function App() {
 
       {/* Main Content */}
       <div style={{ flex: 1, minHeight: 0, display: 'flex', overflow: 'hidden' }}>
+        <div style={{ display: activeTab === 'core' ? 'flex' : 'none', flex: 1 }}>
+          <CoreVisibility
+            onLoadYamlToEditor={handleLoadYamlToEditor}
+            onEditTask={() => setActiveTab('builder')}
+          />
+        </div>
         <div style={{ display: activeTab === 'builder' ? 'flex' : 'none', flex: 1 }}>
           <GraphEditor
             ref={graphEditorRef}
@@ -179,12 +196,6 @@ function App() {
         </div>
         <div style={{ display: activeTab === 'telemetry' ? 'flex' : 'none', flex: 1 }}>
           <TelemetryDashboard />
-        </div>
-        <div style={{ display: activeTab === 'core' ? 'flex' : 'none', flex: 1 }}>
-          <CoreVisibility
-            onLoadYamlToEditor={handleLoadYamlToEditor}
-            onEditTask={() => setActiveTab('builder')}
-          />
         </div>
       </div>
     </div>

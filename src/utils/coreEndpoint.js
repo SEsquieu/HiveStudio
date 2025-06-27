@@ -6,13 +6,25 @@ export function getCoreEndpoint() {
   return localStorage.getItem("coreEndpoint") || DEFAULT_ENDPOINT;
 }
 
+export const getUserId = () => {
+  return localStorage.getItem('hive_user_id') || 'unknown-user';
+};
+
+// const headers = {
+//   'Content-Type': 'application/json',
+//   'X-User-ID': getUserId()
+// };
+
+
 export async function switchSession(session_id) {
   try {
     const response = await fetch(`${getCoreEndpoint()}/switch_session`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "X-User-ID": getUserId()
       },
+
       body: JSON.stringify({ session_id })
     });
 
@@ -26,7 +38,11 @@ export async function switchSession(session_id) {
 
 export async function getSessions() {
   try {
-    const res = await fetch(`${getCoreEndpoint()}/get_sessions`);
+    const res = await fetch(`${getCoreEndpoint()}/get_sessions`, {
+      headers: {
+        "X-User-ID": getUserId()
+      }
+    });
     return await res.json();
   } catch (err) {
     console.error("Failed to get sessions", err);
@@ -50,7 +66,10 @@ export async function createNamedSession(label = "") {
   try {
     const response = await fetch(`${getCoreEndpoint()}/create_session`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-User-ID": getUserId()
+      },
       body: JSON.stringify({ label })
     });
 
@@ -67,6 +86,7 @@ export async function deleteSession(session_id) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-User-ID": getUserId()
       },
       body: JSON.stringify({ session_id }),
     });
