@@ -5,9 +5,9 @@ import AgentList from './AgentList';
 import TaskList from './TaskList';
 import OverviewStatus from './OverviewStatus';
 import RuntimeControlPanel from './RuntimeControlPanel';
-import { getCoreEndpoint } from '../utils/coreEndpoint';
+import { getCoreEndpoint, getUserId, getFromCore } from '../utils/coreEndpoint';
 
-export default function CoreVisibility({ onLoadYamlToEditor, onEditTask }) {
+export default function CoreVisibility({ onLoadYamlToEditor, onEditTask, activeSessionId }) {
   //console.log("✅ CoreVisibility received props:", { onLoadYamlToEditor, onEditTask });
   const [status, setStatus] = useState(null);
   const [view, setView] = useState("overview");
@@ -16,12 +16,18 @@ export default function CoreVisibility({ onLoadYamlToEditor, onEditTask }) {
   const [autoExpandTaskId, setAutoExpandTaskId] = useState(null);
 
   useEffect(() => {
+    if (!activeSessionId || activeSessionId === "N/A") return;
+
     const fetchStatus = async () => {
       try {
-        const res = await fetch(`${getCoreEndpoint()}/status`);
-        //const res = await fetch("https://core.hiveos.net/status");
-        const data = await res.json();
+        console.log("📡 Status fetch with headers:", {
+          'X-User-ID': getUserId(),
+          'X-Session-ID': activeSessionId
+        });
+
+        const data = await getFromCore("/status", activeSessionId);
         setStatus(data);
+
         const currentTaskIds = new Set((data.tasks || []).map(t => t.task_id));
         const newTasks = [...currentTaskIds].filter(id => !prevTaskIdsRef.current.has(id));
 
@@ -31,16 +37,17 @@ export default function CoreVisibility({ onLoadYamlToEditor, onEditTask }) {
         }
 
         prevTaskIdsRef.current = currentTaskIds;
-
       } catch (err) {
         console.error("Failed to fetch status:", err);
       }
     };
 
+
     fetchStatus();
     const interval = setInterval(fetchStatus, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [activeSessionId]); // ← trigger when session is ready
+
 
   
   const renderOverview = () => {

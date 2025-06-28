@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import GraphEditor from './components/GraphEditor';
 import CoreVisibility from './components/CoreVisibility';
-import { getSessions, switchSession, deleteSession, createNamedSession } from './utils/coreEndpoint'; // Adjust path if needed
+import { getSessions, switchSession, deleteSession, createNamedSession, getUserId } from './utils/coreEndpoint'; // Adjust path if needed
 import RuntimeControlPanel from './components/RuntimeControlPanel'; // ← Add this import if not already
 
 function App() {
@@ -118,12 +118,15 @@ function App() {
                       onClick={async () => {
                         if (session.id !== activeSession) {
                           await switchSession(session.id);
+                          localStorage.setItem("activeSessionId", session.id); // ✅ store it for all fetches
+
                           const { sessions, active } = await getSessions();
                           setAllSessions(sessions);
                           setActiveSession(active);
                           setDropdownOpen(false);
                         }
-                      }}                 
+                      }}
+               
                     >
                       <span className="truncate">{session.label}</span>
                       {session.id !== activeSession && (
@@ -168,8 +171,10 @@ function App() {
                     >
                       + Create Session
                     </button>
+                    <span className="text-xs text-gray-400">User: {getUserId()}</span>
                   </div>
-                </div>              
+                </div>  
+                            
               )}
             </div>
           </div>
@@ -182,6 +187,7 @@ function App() {
           <CoreVisibility
             onLoadYamlToEditor={handleLoadYamlToEditor}
             onEditTask={() => setActiveTab('builder')}
+            activeSessionId={activeSession}
           />
         </div>
         <div style={{ display: activeTab === 'builder' ? 'flex' : 'none', flex: 1 }}>
@@ -189,6 +195,7 @@ function App() {
             ref={graphEditorRef}
             onInject={() => setActiveTab('core')}
             onMount={() => setIsGraphEditorMounted(true)}
+            activeSessionId={activeSession}
           />
         </div>
         <div style={{ display: activeTab === 'autowrapper' ? 'flex' : 'none', flex: 1 }}>

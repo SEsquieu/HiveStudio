@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getCoreEndpoint } from "../utils/coreEndpoint";
+import { getCoreEndpoint, postToCore } from "../utils/coreEndpoint";
 import { Pause, Play, SkipForward } from "lucide-react";
 
 function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus, onLoadYamlToEditor, onEditTask }) {
@@ -12,6 +12,7 @@ function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus, 
   const [taskIdToNuke, setTaskIdToNuke] = useState("");
   const [zoneIdToControl, setZoneIdToControl] = useState("");
   const [section, setSection] = useState("agent");
+  const activeSessionId = localStorage.getItem("activeSessionId");
 
   const currentZoneStatus = coreStatus?.zones?.[zoneIdToControl];
   const isZoneFrozen = currentZoneStatus?.frozen;
@@ -29,17 +30,15 @@ function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus, 
     if (zones.length && !zones.includes(zoneIdToControl)) {
       setZoneIdToControl(zones[0]);
     }
-  }, [agents, tasks, zones]);
+  }, [agents, tasks, zones, activeSessionId]);
+
 
   const makePost = async (endpoint, payload = {}) => {
-    const res = await fetch(`${getCoreEndpoint()}/${endpoint}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const data = await res.json();
+    const sessionId = localStorage.getItem("activeSessionId");
+    const data = await postToCore(`/${endpoint}`, payload, sessionId);
     console.log(`${endpoint}:`, data);
   };
+
 
   const handleTaskAction = async (action) => {
     if (!taskIdToNuke) return;
@@ -50,19 +49,16 @@ function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus, 
       await makePost("delete_task", { task_id: taskIdToNuke });
     } else if (action === "edit") {
       try {
-        const res = await fetch(`${getCoreEndpoint()}/get_task_yaml`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ task_id: taskIdToNuke }),
-        });
-        const result = await res.json();
+        const sessionId = localStorage.getItem("activeSessionId");
+        const result = await postToCore("/get_task_yaml", { task_id: taskIdToNuke }, sessionId);
+
+
         if (result.yaml) {
           console.log("✅ Sending YAML to editor:", result.yaml);
           console.log("👀 About to call onLoadYamlToEditor. Props:", { onLoadYamlToEditor, onEditTask });
           onLoadYamlToEditor?.(result.yaml);
           onEditTask?.();  // <- New tab switch
         }
-
 
       } catch (err) {
         console.error("Failed to fetch task YAML:", err);
@@ -334,11 +330,7 @@ function RuntimeControlPanel({ agents = [], tasks = [], zones = [], coreStatus, 
                   e.preventDefault();
                   const tickrate = parseFloat(e.target.tickrate.value);
                   if (!isNaN(tickrate)) {
-                    await fetch(`${getCoreEndpoint()}/set_tickrate`, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ tickrate }),
-                    });
+                    await postToCore("/set_tickrate", { tickrate });
                   }
                 }}
                 className="flex flex-col items-center gap-1 min-w-[160px]"

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getCoreEndpoint } from '../utils/coreEndpoint';
+import { getCoreEndpoint, postToCore } from '../utils/coreEndpoint';
 
 const AgentList = ({ agents }) => {
   const [sortMode, setSortMode] = useState('all'); // 'all' | 'capability' | 'zone' | 'type'
@@ -121,11 +121,7 @@ const AgentList = ({ agents }) => {
                                   e.preventDefault();
                                   const input = e.target.input.value.trim();
                                   if (!input) return;
-                                  await fetch(`${getCoreEndpoint()}/agent_input`, {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ agent_id: agent.agent_id, input }),
-                                  });
+                                  await postToCore("/agent_input", { agent_id: agent.agent_id, input });
                                   e.target.reset();
                                 }}
                                 className="mt-2 flex gap-2"

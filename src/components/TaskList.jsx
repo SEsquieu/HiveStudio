@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Snowflake, Flame } from "lucide-react";
 import { RotateCcw, Pencil, X } from "lucide-react";
-import { getCoreEndpoint } from "../utils/coreEndpoint";
+import { getCoreEndpoint, postToCore } from "../utils/coreEndpoint";
 
 
 const TaskList = ({ tasks, chunks, zones, autoExpandTaskId, onEditTask, onLoadYamlToEditor }) => {
@@ -16,11 +16,7 @@ const TaskList = ({ tasks, chunks, zones, autoExpandTaskId, onEditTask, onLoadYa
   const toggleZoneFreeze = async (zoneId, shouldFreeze) => {
     try {
       const endpoint = shouldFreeze ? "/unfreeze_zone" : "/freeze_zone";
-      await fetch(`${getCoreEndpoint()}${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ zone_id: zoneId }),
-      });
+      await postToCore(endpoint, { zone_id: zoneId });
     } catch (error) {
       console.error("Failed to toggle freeze state", error);
     }
@@ -115,11 +111,7 @@ const TaskList = ({ tasks, chunks, zones, autoExpandTaskId, onEditTask, onLoadYa
                       title="Reinject"
                       onClick={(e) => {
                         e.stopPropagation();
-                        fetch(`${getCoreEndpoint()}/reinject_task`, {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ task_id: task.task_id }),
-                        }).catch(console.error);
+                        postToCore("/reinject_task", { task_id: task.task_id }).catch(console.error);
                       }}
                     >
                       <RotateCcw size={14} />
@@ -130,12 +122,7 @@ const TaskList = ({ tasks, chunks, zones, autoExpandTaskId, onEditTask, onLoadYa
                       title="Edit"
                       onClick={(e) => {
                         e.stopPropagation();
-                        fetch(`${getCoreEndpoint()}/get_task_yaml`, {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ task_id: task.task_id }),
-                        })
-                          .then((res) => res.json())
+                        postToCore("/get_task_yaml", { task_id: task.task_id })
                           .then((data) => {
                             onLoadYamlToEditor?.(data.yaml);
                             onEditTask?.();
@@ -153,11 +140,7 @@ const TaskList = ({ tasks, chunks, zones, autoExpandTaskId, onEditTask, onLoadYa
                       title="Delete"
                       onClick={(e) => {
                         e.stopPropagation();
-                        fetch(`${getCoreEndpoint()}/delete_task`, {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ task_id: task.task_id }),
-                        }).catch(console.error);
+                        postToCore("/delete_task", { task_id: task.task_id }).catch(console.error);
                       }}
                     >
                       <X size={14} />

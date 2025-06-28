@@ -9,7 +9,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import yaml from 'js-yaml';
-import { getCoreEndpoint } from '../utils/coreEndpoint';
+import { getCoreEndpoint, postToCore } from '../utils/coreEndpoint';
 
 import Sidebar from './Sidebar';
 
@@ -92,7 +92,7 @@ const initialEdges = [
 
 
 const GraphEditorInner = forwardRef((props, ref) => {
-  const { onInject, onMount } = props;
+  const { onInject, onMount, activeSessionId } = props;
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
@@ -354,17 +354,10 @@ const GraphEditorInner = forwardRef((props, ref) => {
 
   const handleInject = async () => {
     const task = buildTaskYAML();
-    const yamlOutput = yaml.dump(task); // or however your export function works
+    const yamlOutput = yaml.dump(task);
     try {
-      const res = await fetch(`${getCoreEndpoint()}/inject_yaml`, {
-      //const res = await fetch("https://core.hiveos.net/inject_yaml", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-yaml",
-        },
-        body: yamlOutput,
-      });
-      const result = await res.json(); // Expect JSON from backend
+      const result = await postToCore("/inject_yaml", yamlOutput, activeSessionId, "application/x-yaml");
+      
       if (result.success) {
         console.log(`✅ Task injected: ${result.success}`);
         if (onInject) onInject();
@@ -375,6 +368,7 @@ const GraphEditorInner = forwardRef((props, ref) => {
       console.error(`❌ Failed to inject: ${err.message}`);
     }
   };
+
 
   const onConnect = useCallback((params) => {
     setEdges((eds) => addEdge({ ...params, type: 'default', animated: true }, eds));
@@ -520,7 +514,7 @@ const buttonStyle = {
 
 const GraphEditor = forwardRef((props, ref) => (
   <ReactFlowProvider>
-    <GraphEditorInner {...props} ref={ref} />
+    <GraphEditorInner {...props} ref={ref} activeSessionId={props.activeSessionId} />
   </ReactFlowProvider>
 ));
 
