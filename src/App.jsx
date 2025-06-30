@@ -13,6 +13,8 @@ function App() {
   const activeLabel = allSessions.find((s) => s.id === activeSession)?.label || activeSession;
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [newSessionName, setNewSessionName] = useState('');
+  const [showNoSessionOverlay, setShowNoSessionOverlay] = useState(false);
+
 
 
   useEffect(() => {
@@ -43,10 +45,18 @@ function App() {
       const { sessions, active } = await getSessions();
       setAllSessions(sessions || []);
       setActiveSession(active || 'N/A');
+
+      if (!sessions || sessions.length === 0) {
+        setShowNoSessionOverlay(true);
+      } else {
+        setShowNoSessionOverlay(false);
+      }
     };
 
     fetchSessions();
   }, []);
+
+
 
   const handleSessionChange = async (e) => {
     const selected = e.target.value;
@@ -81,8 +91,6 @@ function App() {
   };
 
 
-
-
   return (
     <div style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#111', color: '#fff' }}>
       {/* Top Bar */}
@@ -98,6 +106,21 @@ function App() {
               </button>
             ))}
           </div>
+          {showNoSessionOverlay && (
+            <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
+              <div className="bg-white text-black p-6 rounded-lg shadow-lg text-center">
+                <p className="text-lg font-bold mb-2">No Active Sessions</p>
+                <p className="mb-4">Please use the dropdown in the top bar to create one.</p>
+                <button
+                  onClick={() => setShowNoSessionOverlay(false)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  Okay
+                </button>
+              </div>
+            </div>
+          )}
+
 
           {/* Session Badge */}
           <div className="flex items-center gap-2">
