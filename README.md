@@ -10,6 +10,15 @@ This tool lets you:
 
 ---
 
+## 🧪 Tinker-Friendly Preview (Limited)
+
+A soft preview is live! This is a working testbed for HiveOS runtime orchestration with session-based isolation. The core is running on my laptop, in my kitchen, so play nice!
+
+⚠️ **Note:**  
+Sessions automatically expire **after 1 hour** of uptime. If your session becomes stale, you may need to refresh and create a new one to resume testing.
+
+---
+
 ## Live Demo
 
 Try the web version at:  
@@ -37,6 +46,15 @@ Then open: [localhost:5173](http://localhost:5173)
 - TTL + conditional logic support
 - One-click chunk duplication
 - YAML import/export for HiveOS-ready tasks
+
+---
+## Coming Soon 🚧
+
+The following features are actively being developed and will be rolled out soon:
+
+- **Local session export/import**: Save and reload your entire HiveOS session with agents, tasks, and zones.
+- **Per-session history tracking**: Session logs and past task snapshots for persistent user experience.
+- **Session continuity tools**: Seamless reconnection and continuation between runtime sessions.
 
 ---
 
