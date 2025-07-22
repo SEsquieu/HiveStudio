@@ -6,6 +6,10 @@ export function getCoreEndpoint() {
   return localStorage.getItem("coreEndpoint") || DEFAULT_ENDPOINT;
 }
 
+export function getSessionId() {
+  return localStorage.getItem("activeSessionId") || "N/A";
+}
+
 export const getUserId = () => {
   return localStorage.getItem('hive_user_id') || 'unknown-user';
 };

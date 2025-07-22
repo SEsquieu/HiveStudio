@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import GraphEditor from './components/GraphEditor';
 import CoreVisibility from './components/CoreVisibility';
+import AgentAutoWrapper from './components/AgentAutoWrapper';
 import { getSessions, switchSession, deleteSession, createNamedSession, getUserId } from './utils/coreEndpoint'; // Adjust path if needed
 import RuntimeControlPanel from './components/RuntimeControlPanel'; // ← Add this import if not already
 
@@ -28,9 +29,9 @@ function App() {
   }, []);
 
   
-  function AgentAutoWrapper() {
-    return <div className="p-4 text-white">[Agent Auto-Wrapper Coming Soon]</div>;
-  }
+  // function AgentAutoWrapper() {
+  //   return <div className="p-4 text-white">[Agent Auto-Wrapper Coming Soon]</div>;
+  // }
 
   function TelemetryDashboard() {
     return <div className="p-4 text-white">[Telemetry Dashboard Placeholder]</div>;
