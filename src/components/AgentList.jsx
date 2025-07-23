@@ -115,8 +115,7 @@ const AgentList = ({ agents }) => {
                           <div className="mb-1 text-gray-400 font-semibold">Simulated Output</div>
                           <pre className="whitespace-pre-wrap">{agent.latest_output || "(no output yet)"}</pre>
 
-                          {agent.type === "SimTerminalAgent" &&
-                          agent.status === "working" &&
+                          {agent.status === "working" &&
                           agent.current_intent === "wait_for_input" && (
                             <div onClick={(e) => e.stopPropagation()}>
                               <form
